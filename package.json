@@ -14,7 +14,7 @@
     "@types/papaparse": "^5.3.16",
     "@vueuse/core": "^9.13.0",
     "@vueuse/nuxt": "^13.5.0",
-    "nuxt": "^4.0.0"
+    "nuxt": "^4.1.1"
   },
   "dependencies": {
     "ace-builds": "^1.43.2",
