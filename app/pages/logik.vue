@@ -62,6 +62,9 @@ const dataObj = computed(() => {
     },
     targetData: {
       ...tData
+    },
+    debug: {
+      FCP: true
     }
   }
 
@@ -79,6 +82,7 @@ const inputHTML = computed(() => {
                     .replace("<%@ include view='fixDecimal' %>", fixDecimal)
                     .replace("<%@ include view='forwardXDays' %>", forwardXDays)
                     .replace("<%@ include view='formatPricePoint' %>", formatPricePoint)
+                    .replace(/<%=/g, '<%-')
   return processed;
 })
 
