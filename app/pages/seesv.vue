@@ -149,23 +149,24 @@ function isImageUrl(url: string): boolean {
 
 function downloadCSV() {
   if (!csvFile.value || csvData.value.length === 0) return
-  
+
   // Transform the data back to CSV format
   const csvRows: string[][] = []
-  
+
   const headerRow = csvData.value.map(row => row.label)
   csvRows.push(headerRow)
-  
+
   const dataRow1 = csvData.value.map(row => row.column2)
   const dataRow2 = csvData.value.map(row => row.column3)
-  
+
   csvRows.push(dataRow1)
   csvRows.push(dataRow2)
-  
+
 
   const csvString = Papa.unparse(csvRows)
-  
-  const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' })
+
+  // Add UTF-8 BOM to ensure proper encoding recognition
+  const blob = new Blob(['\uFEFF' + csvString], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
