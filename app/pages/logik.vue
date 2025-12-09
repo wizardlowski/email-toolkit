@@ -63,7 +63,7 @@ const dataObj = computed(() => {
     targetData: {
       ...tData
     },
-    debug: {
+    delivery: {
       FCP: true
     }
   }
