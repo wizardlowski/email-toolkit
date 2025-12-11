@@ -150,47 +150,36 @@ const currentData = computed(() => {
       class="mb-6"
     />
 
-    <div v-if="errorMessage" class="text-center mb-6">
-      <div class="inline-flex items-center px-4 py-2 rounded-lg bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">
-        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-        </svg>
-        {{ errorMessage }}
-      </div>
-    </div>
+    <UAlert v-if="errorMessage" color="error" variant="soft" :title="errorMessage" icon="i-lucide-circle-alert" class="mb-6" />
 
 
-    <div 
-      v-if="csvData.length > 0" 
-      class="fixed bottom-4 right-4 z-10 bg-white dark:bg-neutral-800 border border-gray-300 rounded-lg p-4 shadow-lg max-w-md overflow-y-auto"
+    <UCard
+      v-if="csvData.length > 0"
+      class="fixed bottom-4 right-4 z-10 shadow-lg max-w-md overflow-y-auto"
+      :ui="{ body: 'p-4 sm:p-4' }"
     >
-      
       <!-- Region selector -->
       <div v-if="csvData.length > 1" class="mb-4">
         <label class="block text-xs font-bold mb-2">Region:</label>
-        <div class="flex rounded-lg border border-neutral-200 overflow-hidden">
-          <button
+        <div class="flex gap-1">
+          <UButton
             @click="selectedIndex = 0"
-            :class="[
-              'flex-1 px-4 py-2 text-sm font-medium transition-colors',
-              selectedIndex === 0 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-white hover:bg-neutral-50'
-            ]"
+            :variant="selectedIndex === 0 ? 'solid' : 'ghost'"
+            :color="selectedIndex === 0 ? 'primary' : 'neutral'"
+            class="flex-1"
+            size="sm"
           >
             UK
-          </button>
-          <button
+          </UButton>
+          <UButton
             @click="selectedIndex = 1"
-            :class="[
-              'flex-1 px-4 py-2 text-sm font-medium transition-colors',
-              selectedIndex === 1 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-white hover:bg-neutral-50'
-            ]"
+            :variant="selectedIndex === 1 ? 'solid' : 'ghost'"
+            :color="selectedIndex === 1 ? 'primary' : 'neutral'"
+            class="flex-1"
+            size="sm"
           >
             ROI
-          </button>
+          </UButton>
         </div>
       </div>
 
@@ -252,7 +241,7 @@ const currentData = computed(() => {
           </div>
         </div>
       </div>
-    </div>
+    </UCard>
 
     <div v-if="csvData.length > 0" class="max-w-[600px] mx-auto shadow-xl text-center py-6 text-[#333] bg-white">
       

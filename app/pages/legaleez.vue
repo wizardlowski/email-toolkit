@@ -91,15 +91,13 @@ useHead({
 <template>
   <div class="text-xl p-4 min-h-full grid gap-4 grid-cols-2 grid-rows-[40px_50px_auto]">
     <div class="col-[1_/_-1] relative self-center">
-      <div class="flex items-center justify-center uppercase">
-        <label class="flex items-center" for="linkColourInput">
-          colour:
-          <input v-model.trim="colourInput" class="ml-3 mr-12 pl-1 text-inherit bg-white dark:bg-neutral-700 dark:border-neutral-100 border-black border" type="text">
-        </label>
-        <label class="flex items-center" for="underlineToggle">
-          underline:
-          <input v-model="underline" :checked="underline" class="ml-3" type="checkbox">
-        </label>
+      <div class="flex items-center justify-center gap-8 uppercase">
+        <UFormField label="Colour">
+          <UInput v-model.trim="colourInput" class="w-32" />
+        </UFormField>
+        <UFormField label="Underline">
+          <USwitch v-model="underline" />
+        </UFormField>
       </div>
     </div>
 
@@ -111,8 +109,8 @@ useHead({
       {{ copyBtnText }}
     </UButton>
     
-    <textarea v-model="inputText" class="resize-none p-1 text-inherit bg-white dark:bg-neutral-700 dark:border-neutral-100 border-black border" spellcheck="false" autofocus></textarea>
-    <textarea v-model="outputText" class="resize-none p-1 text-inherit bg-white dark:bg-neutral-700 dark:border-neutral-100 border-black border" spellcheck="false"></textarea>
+    <UTextarea v-model="inputText" class="h-full" :ui="{ base: 'h-full resize-none' }" autofocus />
+    <UTextarea v-model="outputText" class="h-full" :ui="{ base: 'h-full resize-none' }" />
   </div>
 </template>
 

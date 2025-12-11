@@ -114,13 +114,13 @@ function clearAll() {
 <template>
   <div class="grid grid-cols-[1fr_640px]">
     <div class="relative flex flex-col">
-      <textarea 
-        v-model="targetDataInput" 
-        @keyup="updateOutput" 
-        ref="dataTextarea"
-        rows="5"
-        class="w-full bg-inherit border-black dark:border-neutral-100 border-r border-b p-1 shrink-0">
-      </textarea>
+      <UTextarea
+        v-model="targetDataInput"
+        @keyup="updateOutput"
+        :rows="5"
+        class="shrink-0"
+        :ui="{ base: 'rounded-none border-r border-b border-black dark:border-neutral-100' }"
+      />
       
       <LazyClientOnly>
         <Editor @update="editorUpdate" @clear="clearAll"/>
