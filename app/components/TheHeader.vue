@@ -18,7 +18,7 @@ const currentToolName = computed(() => {
 </script>
 
 <template>
-  <header class="py-2 px-5 border-b border-black dark:border-gray-100">
+  <header class="py-2 px-5 border-b border-black dark:border-neutral-100">
     <UContainer class="flex justify-between items-center">
       <NuxtLink to="/">ETK</NuxtLink>
   
@@ -29,7 +29,7 @@ const currentToolName = computed(() => {
       <div class="toggle-container">
         <UButton
           :icon="isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'"
-          color="gray"
+          color="neutral"
           variant="ghost"
           aria-label="Theme"
           @click="isDark = !isDark"

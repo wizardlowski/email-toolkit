@@ -1,20 +1,25 @@
 export default defineAppConfig({
   ui: {
-    primary: 'blue',
+    colors: {
+      primary: 'blue',
+      neutral: 'slate'
+    },
     button: {
-      base: "rounded px-4 py-2 text-center uppercase leading-8 border-none cursor-pointer justify-center disabled:[--tw-bg-opacity:0.8]",
-      font: "font-normal",
-      rounded: "rounded",
-      size: {
-        xxl: "text-lg",
+      slots: {
+        base: "rounded px-4 py-2 text-center uppercase leading-8 border-none cursor-pointer justify-center disabled:[--tw-bg-opacity:0.8] font-normal"
       },
-      default: {
-        size: "xxl",
+      variants: {
+        size: {
+          xxl: "text-lg"
+        }
+      },
+      defaultVariants: {
+        size: "xxl"
       }
     },
-    formGroup: {
-      label: {
-        base: "block mt-2 text-gray-700 dark:text-gray-200"
+    formField: {
+      slots: {
+        label: "block mt-2 text-neutral-700 dark:text-neutral-200"
       }
     }
   }

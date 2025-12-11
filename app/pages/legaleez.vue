@@ -94,7 +94,7 @@ useHead({
       <div class="flex items-center justify-center uppercase">
         <label class="flex items-center" for="linkColourInput">
           colour:
-          <input v-model.trim="colourInput" class="ml-3 mr-12 pl-1 text-inherit bg-white dark:bg-neutral-700 dark:border-gray-100 border-black border" type="text">
+          <input v-model.trim="colourInput" class="ml-3 mr-12 pl-1 text-inherit bg-white dark:bg-neutral-700 dark:border-neutral-100 border-black border" type="text">
         </label>
         <label class="flex items-center" for="underlineToggle">
           underline:
@@ -111,8 +111,8 @@ useHead({
       {{ copyBtnText }}
     </UButton>
     
-    <textarea v-model="inputText" class="resize-none p-1 text-inherit bg-white dark:bg-neutral-700 dark:border-gray-100 border-black border" spellcheck="false" autofocus></textarea>
-    <textarea v-model="outputText" class="resize-none p-1 text-inherit bg-white dark:bg-neutral-700 dark:border-gray-100 border-black border" spellcheck="false"></textarea>
+    <textarea v-model="inputText" class="resize-none p-1 text-inherit bg-white dark:bg-neutral-700 dark:border-neutral-100 border-black border" spellcheck="false" autofocus></textarea>
+    <textarea v-model="outputText" class="resize-none p-1 text-inherit bg-white dark:bg-neutral-700 dark:border-neutral-100 border-black border" spellcheck="false"></textarea>
   </div>
 </template>
 

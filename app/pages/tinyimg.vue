@@ -172,12 +172,12 @@ function removeImage(imageId: string) {
       <div 
         v-for="image in images" 
         :key="image.id"
-        class="border rounded-lg p-4 dark:border-gray-600"
+        class="border rounded-lg p-4 dark:border-neutral-600"
       >
         <div class="flex items-center justify-between">
           <div class="flex-1">
             <div class="font-medium">{{ image.originalFile.name }}</div>
-            <div class="text-sm text-gray-500">
+            <div class="text-sm text-neutral-500">
               {{ formatFileSize(image.originalSize) }}
               <span v-if="image.status === 'completed'">
                 → {{ formatFileSize(image.compressedSize) }}
@@ -188,7 +188,7 @@ function removeImage(imageId: string) {
             <div class="mt-2">
               <span 
                 v-if="image.status === 'pending'" 
-                class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-neutral-100 text-neutral-800 dark:bg-neutral-700 dark:text-neutral-300"
               >
                 Pending
               </span>

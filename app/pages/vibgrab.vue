@@ -233,18 +233,18 @@ function clearAll() {
         </UButton>
       </div>
       
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+      <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-4">
         <div v-for="(processedFile, index) in processedFiles" :key="index" class="mb-4 last:mb-0">
           <div class="font-mono text-sm space-y-1">
             <div>{{ processedFile.identifier || 'N/A' }}</div>
-            <div v-if="processedFile.isLoadingRedirect" class="text-gray-500 italic">
+            <div v-if="processedFile.isLoadingRedirect" class="text-neutral-500 italic">
               Getting vib...
             </div>
             <div v-else class="break-all">
               {{ processedFile.finalUrl || processedFile.browserViewUrl || 'N/A' }}
             </div>
           </div>
-          <div v-if="index < processedFiles.length - 1" class="border-b border-gray-200 dark:border-gray-600 mt-4"></div>
+          <div v-if="index < processedFiles.length - 1" class="border-b border-neutral-200 dark:border-neutral-600 mt-4"></div>
         </div>
       </div>
     </div>

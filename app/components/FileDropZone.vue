@@ -76,7 +76,7 @@ const iconPaths = {
 
 <template>
   <div 
-    class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center transition-colors"
+    class="border-2 border-dashed border-neutral-300 dark:border-neutral-600 rounded-lg p-8 text-center transition-colors"
     :class="{ 
       'border-primary-500 bg-primary-50 dark:bg-primary-900/20': isDragOver && !disabled,
       'opacity-50 cursor-not-allowed': disabled,
@@ -88,12 +88,12 @@ const iconPaths = {
     @drop="handleDrop"
   >
     <div class="mb-4">
-      <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-12 h-12 mx-auto text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="iconPaths[icon]" />
       </svg>
     </div>
     <p class="text-lg mb-2">{{ title }}</p>
-    <p class="text-sm text-gray-500 mb-4">{{ subtitle }}</p>
+    <p class="text-sm text-neutral-500 mb-4">{{ subtitle }}</p>
     
     <label :for="fileInputId" class="cursor-pointer">
       <UButton as="span" :disabled="disabled">

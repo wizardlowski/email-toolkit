@@ -119,7 +119,7 @@ function clearAll() {
         @keyup="updateOutput" 
         ref="dataTextarea"
         rows="5"
-        class="w-full bg-inherit border-black dark:border-gray-100 border-r border-b p-1 shrink-0">
+        class="w-full bg-inherit border-black dark:border-neutral-100 border-r border-b p-1 shrink-0">
       </textarea>
       
       <LazyClientOnly>

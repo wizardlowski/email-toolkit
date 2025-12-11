@@ -168,14 +168,14 @@ const currentData = computed(() => {
       <!-- Region selector -->
       <div v-if="csvData.length > 1" class="mb-4">
         <label class="block text-xs font-bold mb-2">Region:</label>
-        <div class="flex rounded-lg border border-gray-200 overflow-hidden">
+        <div class="flex rounded-lg border border-neutral-200 overflow-hidden">
           <button
             @click="selectedIndex = 0"
             :class="[
               'flex-1 px-4 py-2 text-sm font-medium transition-colors',
               selectedIndex === 0 
                 ? 'bg-blue-500 text-white' 
-                : 'bg-white dark:bg-neutral-800 text-gray-700 dark:text-white hover:bg-gray-50'
+                : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-white hover:bg-neutral-50'
             ]"
           >
             UK
@@ -186,7 +186,7 @@ const currentData = computed(() => {
               'flex-1 px-4 py-2 text-sm font-medium transition-colors',
               selectedIndex === 1 
                 ? 'bg-blue-500 text-white' 
-                : 'bg-white dark:bg-neutral-800 text-gray-700 dark:text-white hover:bg-gray-50'
+                : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-white hover:bg-neutral-50'
             ]"
           >
             ROI
@@ -200,55 +200,55 @@ const currentData = computed(() => {
         <div class="space-y-3 text-xs">
           <div class="flex items-center gap-3 justify-between">
             <span>Tactical Hero</span>
-            <UToggle v-model="showTacticalHero" size="xs" />
+            <USwitch v-model="showTacticalHero" size="xs" />
           </div>
           <div class="flex items-center gap-3 justify-between">
             <span>Sports</span>
-            <UToggle v-model="showSports" size="xs" />
+            <USwitch v-model="showSports" size="xs" />
           </div>
           <div class="flex items-center gap-3 justify-between">
             <span>Rewards on Repeat</span>
-            <UToggle v-model="showRewardsOnRepeat" size="xs" />
+            <USwitch v-model="showRewardsOnRepeat" size="xs" />
           </div>
           <div class="flex items-center gap-3 justify-between">
             <span>Experience</span>
-            <UToggle v-model="showExperience" size="xs" />
+            <USwitch v-model="showExperience" size="xs" />
           </div>
           <div class="flex items-center gap-3 justify-between">
             <span>Everyday Savings</span>
-            <UToggle v-model="showEverydaySavings" size="xs" />
+            <USwitch v-model="showEverydaySavings" size="xs" />
           </div>
           <div class="flex items-center gap-3 justify-between">
             <span>TV Customers</span>
-            <UToggle v-model="showTvCust" size="xs" />
+            <USwitch v-model="showTvCust" size="xs" />
           </div>
           <div class="flex items-center gap-3 justify-between">
             <span>BB Customers</span>
-            <UToggle v-model="showBbCust" size="xs" />
+            <USwitch v-model="showBbCust" size="xs" />
           </div>
           <div class="flex items-center gap-3 justify-between">
             <span>Mobile Customers</span>
-            <UToggle v-model="showMobileCust" size="xs" />
+            <USwitch v-model="showMobileCust" size="xs" />
           </div>
           <div class="flex items-center gap-3 justify-between">
             <span>TV + BB</span>
-            <UToggle v-model="showTvBb" size="xs" />
+            <USwitch v-model="showTvBb" size="xs" />
           </div>
           <div class="flex items-center gap-3 justify-between">
             <span>TV + BB + Mobile</span>
-            <UToggle v-model="showTvBbMobile" size="xs" />
+            <USwitch v-model="showTvBbMobile" size="xs" />
           </div>
           <div class="flex items-center gap-3 justify-between">
             <span>TV + Mobile</span>
-            <UToggle v-model="showTvMobile" size="xs" />
+            <USwitch v-model="showTvMobile" size="xs" />
           </div>
           <div class="flex items-center gap-3 justify-between">
             <span>BB + Mobile</span>
-            <UToggle v-model="showBbMobile" size="xs" />
+            <USwitch v-model="showBbMobile" size="xs" />
           </div>
           <div class="flex items-center gap-3 justify-between">
             <span>Extra Entertainment</span>
-            <UToggle v-model="showExtraEnt" size="xs" />
+            <USwitch v-model="showExtraEnt" size="xs" />
           </div>
         </div>
       </div>

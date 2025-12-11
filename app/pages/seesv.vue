@@ -215,11 +215,11 @@ function downloadCSV() {
       <div 
         v-for="(row, index) in csvData" 
         :key="index"
-        class="grid grid-cols-[300px_1fr_1fr] gap-4 items-start p-4 border rounded-lg dark:border-gray-600"
+        class="grid grid-cols-[300px_1fr_1fr] gap-4 items-start p-4 border rounded-lg dark:border-neutral-600"
       >
         <!-- Label (First Column) -->
         <div class="flex items-center">
-          <h3 class="text-lg font-bold text-gray-900 dark:text-white break-words">
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-white break-words">
             {{ row.label }}
           </h3>
         </div>

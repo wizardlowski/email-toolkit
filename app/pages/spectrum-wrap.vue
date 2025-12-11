@@ -181,7 +181,7 @@ function clipboardCopy () {
 
 <template>
   <UContainer class="mt-8 space-y-6 text-center !px-0" :style="{ width: containerSizeMobile ? '375px' : '600px' }">
-    <UFormGroup label="Text:">
+    <UFormField label="Text:">
       <UTextarea 
         v-model="input" 
         :rows="4" 
@@ -239,9 +239,9 @@ function clipboardCopy () {
           class="capitalize"
         >{{ containerSizeMobile ? 'Desktop' : 'Mobile' }}</UButton>
       </div>
-    </UFormGroup>
+    </UFormField>
 
-    <UContainer class="bg-white dark:bg-gray-900 shadow rounded py-4 mx-auto sm:!pl-[5%] sm:!pr-[5%]">
+    <UContainer class="bg-white dark:bg-neutral-900 shadow rounded py-4 mx-auto sm:!pl-[5%] sm:!pr-[5%]">
       <h1 v-html="output" class="leading-tight" :class="{ 'font-bold': toggleBold, 'font-arial': useArialFont }" :style="fontSize">
         
       </h1>

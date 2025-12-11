@@ -91,7 +91,7 @@ onUpdated(() => {
 <template>
   <a :href="downloadUrl" :download="filename" :hascopy="hascopy" class="download">
     <canvas 
-      class="align-middle border border-gray-400 w-full h-auto" 
+      class="align-middle border border-neutral-400 w-full h-auto" 
       ref="canvasRef" 
       :width="canvas.width" 
       :height="canvas.height"

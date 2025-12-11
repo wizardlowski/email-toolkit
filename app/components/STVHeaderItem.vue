@@ -36,7 +36,7 @@ onMounted(() => {
 
 <template>
   <div class="grid grid-cols-1 grid-rows-[66px_auto_22px] rounded p-4 item-shadow">
-    <textarea class="w-full resize-none text-center border border-gray-400 bg-inherit" rows="4" v-model.trim="inputText"></textarea>
+    <textarea class="w-full resize-none text-center border border-neutral-400 bg-inherit" rows="4" v-model.trim="inputText"></textarea>
     <div class="my-4">
 
       <SpectrumCanvasText 
@@ -49,7 +49,7 @@ onMounted(() => {
       />
 
     </div>
-    <input type="text" class="w-full text-center border border-gray-400 bg-inherit" v-model.trim="filenameText">
+    <input type="text" class="w-full text-center border border-neutral-400 bg-inherit" v-model.trim="filenameText">
   </div>
 </template>
 

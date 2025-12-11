@@ -1,3 +1,6 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
 @font-face {
   font-family: "Sky Text";
   src: url("https://static.skyassets.com/fonts/sky-regular.woff2") format("woff2");
