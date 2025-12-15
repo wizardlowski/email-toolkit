@@ -25,6 +25,102 @@ const showTvMobile = ref(true)
 const showBbMobile = ref(true)
 const showExtraEnt = ref(true)
 
+// Pod field mappings configuration
+const podFieldMappings = [
+  {
+    showRef: showSports,
+    fields: ['Sports_Heading', 'Sports_1_Image_URL', 'Sports_2_Image_URL', 'Sports_3_Image_URL', 'Sports_Copy', 'Sports_CTA_URL', 'Sports_CTA_Copy']
+  },
+  {
+    showRef: showRewardsOnRepeat,
+    fields: ['Rewards_on_Repeat_Heading', 'Rewards_on_Repeat_Image_URL', 'Rewards_on_Repeat_Copy', 'Rewards_on_Repeat_CTA_URL', 'Rewards_on_Repeat_CTA_Copy']
+  },
+  {
+    showRef: showExperience,
+    fields: ['Experience_Heading', 'Experience_1_Image_URL', 'Experience_2_Image_URL', 'Experience_3_Image_URL', 'Experience_Copy', 'Experience_CTA_URL', 'Experience_CTA_Copy']
+  },
+  {
+    showRef: showEverydaySavings,
+    fields: ['Everyday_Savings_Heading', 'Everyday_Savings_Image_URL', 'Everyday_Savings_Copy', 'Everyday_Savings_CTA_URL', 'Everyday_Savings_CTA_Copy']
+  },
+  {
+    showRef: showTvCust,
+    fields: ['TV_Customers_Heading', 'TV_Customers_Image_URL', 'TV_Customers_Copy', 'TV_Customers_CTA_URL', 'TV_Customers_CTA_Copy']
+  },
+  {
+    showRef: showBbCust,
+    fields: ['BB_Customers_Heading', 'BB_Customers_Image_URL', 'BB_Customers_Copy', 'BB_Customers_CTA_URL', 'BB_Customers_CTA_Copy']
+  },
+  {
+    showRef: showMobileCust,
+    fields: ['Mobile_Heading', 'Mobile_Image_URL', 'Mobile_Copy', 'Mobile_CTA_URL', 'Mobile_CTA_Copy']
+  },
+  {
+    showRef: showTvBb,
+    fields: ['TV_BB_Heading', 'TV_BB_Image_URL', 'TV_BB_Copy', 'TV_BB_CTA_URL', 'TV_BB_CTA_Copy']
+  },
+  {
+    showRef: showTvBbMobile,
+    fields: ['TV_BB_Mobile_Heading', 'TV_BB_Mobile_Image_URL', 'TV_BB_Mobile_Copy', 'TV_BB_Mobile_CTA_URL', 'TV_BB_Mobile_CTA_Copy']
+  },
+  {
+    showRef: showTvMobile,
+    fields: ['TV_Mobile_Heading', 'TV_Mobile_Image_URL', 'TV_Mobile_Copy', 'TV_Mobile_CTA_URL', 'TV_Mobile_CTA_Copy']
+  },
+  {
+    showRef: showBbMobile,
+    fields: ['BB_Mobile_Heading', 'BB_Mobile_Image_URL', 'BB_Mobile_Copy', 'BB_Mobile_CTA_URL', 'BB_Mobile_CTA_Copy']
+  },
+  {
+    showRef: showExtraEnt,
+    fields: ['Extra_Entertainment_Heading', 'Extra_Entertainment_Image_URL', 'Extra_Entertainment_Copy', 'Extra_Entertainment_CTA_URL', 'Extra_Entertainment_CTA_Copy']
+  }
+]
+
+// Validation helper functions
+function isFieldValid(value: any): boolean {
+  return value !== null && value !== undefined && value !== ''
+}
+
+function validatePodFields(data: any, fieldNames: string[]): boolean {
+  return fieldNames.every(fieldName => isFieldValid(data[fieldName]))
+}
+
+// Auto-hide validation logic
+function validateAndUpdatePodVisibility() {
+  const data = currentData.value
+  if (!data) return
+
+  // Validate each pod, set show ref based on field completeness
+  podFieldMappings.forEach(config => {
+    const hasAllFields = validatePodFields(data, config.fields)
+    config.showRef.value = hasAllFields
+  })
+
+  // Hero auto-selection logic
+  const standardHeroValid = validatePodFields(data, [
+    'Hero_Image_URL', 'Hero_Copy', 'Hero_CTA_URL', 'Hero_CTA_Copy'
+  ])
+  const tacticalHeroValid = validatePodFields(data, [
+    'Tactical_Hero_Image_URL', 'Tactical_Hero_Copy',
+    'Tactical_Hero_CTA_URL', 'Tactical_Hero_CTA_Copy'
+  ])
+
+  // Auto-select tactical if standard missing but tactical complete
+  if (!standardHeroValid && tacticalHeroValid) {
+    showTacticalHero.value = true
+  } else if (!tacticalHeroValid) {
+    showTacticalHero.value = false
+  }
+}
+
+// Watch for CSV data changes and region switches
+watch([csvData, selectedIndex], () => {
+  if (csvData.value.length > 0) {
+    validateAndUpdatePodVisibility()
+  }
+}, { immediate: false })
+
 async function handleDropZoneFiles(files: File[]) {
   if (files.length === 0) {
     return
