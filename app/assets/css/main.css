@@ -1,14 +1,13 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @font-face {
   font-family: "Sky Text";
   src: url("https://static.skyassets.com/fonts/sky-regular.woff2") format("woff2");
   font-display: fallback;
 }
-@font-face {
-  font-family: "Sky Text";
-  src: url("https://static.skyassets.com/fonts/sky-medium.woff2") format("woff2");
-  font-weight: bold;
-  font-display: fallback;
+@theme {
+  --font-sky: 'Sky Text', Arial;
 }
