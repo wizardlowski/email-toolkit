@@ -187,11 +187,12 @@ function clipboardCopy () {
         :rows="4" 
         placeholder="Text here" 
         autoresize 
+        class="block"
       />
       <USelect 
         v-model="gradientSelected" 
         :options="gradientSelectOptions" 
-        class="mt-4" 
+        class="mt-4 w-full" 
       />
 
       <div class="mt-6 flex justify-center gap-4 rounded-none">
@@ -241,7 +242,7 @@ function clipboardCopy () {
       </div>
     </UFormField>
 
-    <UContainer class="bg-white dark:bg-neutral-900 shadow rounded py-4 mx-auto sm:!pl-[5%] sm:!pr-[5%]">
+    <UContainer class="bg-white dark:bg-neutral-700 shadow rounded py-4 mx-auto sm:!pl-[5%] sm:!pr-[5%]">
       <h1 v-html="output" class="leading-tight" :class="{ 'font-bold': toggleBold, 'font-arial': useArialFont }" :style="fontSize">
         
       </h1>
