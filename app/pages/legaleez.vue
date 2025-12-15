@@ -2,7 +2,7 @@
 import { det } from "detergent";
 import { useClipboard } from '@vueuse/core'
 
-const colourInput = ref('4a4a4a')
+const colourInput = ref('333333')
 
 const colourValue = computed(() => {
   if (colourInput.value.includes('#')) {
@@ -77,7 +77,7 @@ function clipboardCopy () {
 }
 
 function clear () {
-  colourInput.value = '4a4a4a'
+  colourInput.value = '333333'
   underline.value = false
   inputText.value = ''
   outputText.value = ''
