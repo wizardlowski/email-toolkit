@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Papa from 'papaparse'
+import { toJpeg } from 'html-to-image'
 
 useHead({
   title: 'VIPreview'
@@ -221,17 +222,119 @@ function parseCSV(text: string) {
   }
 }
 
-function toggleDataset() {
-  selectedIndex.value = selectedIndex.value === 0 ? 1 : 0
-}
-
-const toggleBtnText = computed(() => {
-  return selectedIndex.value === 0 ? 'UK' : 'ROI'
-})
-
 const currentData = computed(() => {
   return csvData.value.length > selectedIndex.value ? csvData.value[selectedIndex.value] : null
 })
+
+const screenshotFrame = templateRef<HTMLDivElement>('email-screenshot')
+const isCapturing = ref(false)
+
+async function convertImagesToDataUrls(container: HTMLElement): Promise<Map<HTMLImageElement, string>> {
+  const originalSrcs = new Map<HTMLImageElement, string>()
+  const images = container.querySelectorAll('img')
+
+  await Promise.all(
+    Array.from(images).map(async (img) => {
+      const src = img.src
+      if (!src || src.startsWith('data:')) return
+
+      originalSrcs.set(img, src)
+
+      try {
+        const proxyUrl = `/api/imageProxy?url=${encodeURIComponent(src)}`
+        const response = await fetch(proxyUrl)
+        const blob = await response.blob()
+
+        const dataUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader()
+          reader.onloadend = () => resolve(reader.result as string)
+          reader.readAsDataURL(blob)
+        })
+
+        img.src = dataUrl
+      } catch (error) {
+        console.error('Failed to convert image:', src, error)
+      }
+    })
+  )
+
+  return originalSrcs
+}
+
+function restoreImageSrcs(originalSrcs: Map<HTMLImageElement, string>) {
+  originalSrcs.forEach((src, img) => {
+    img.src = src
+  })
+}
+
+async function fetchFontAsBase64(url: string): Promise<string> {
+  const proxyUrl = `/api/fontProxy?url=${encodeURIComponent(url)}`
+  const response = await fetch(proxyUrl)
+  const blob = await response.blob()
+
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result as string)
+    reader.readAsDataURL(blob)
+  })
+}
+
+async function buildFontEmbedCSS(): Promise<string> {
+  const fonts = [
+    { family: 'Sky Text', url: 'https://static.skyassets.com/fonts/sky-regular.woff2' },
+    { family: 'Sky Text Medium', url: 'https://static.skyassets.com/fonts/sky-medium.woff2' }
+  ]
+
+  const fontFaces = await Promise.all(
+    fonts.map(async (font) => {
+      try {
+        const base64 = await fetchFontAsBase64(font.url)
+        return `@font-face { font-family: "${font.family}"; src: url("${base64}") format("woff2"); }`
+      } catch (error) {
+        console.error('Failed to embed font:', font.family, error)
+        return ''
+      }
+    })
+  )
+
+  return fontFaces.filter(Boolean).join('\n')
+}
+
+async function takeScreenshot() {
+  if (!screenshotFrame.value) return
+
+  isCapturing.value = true
+
+  try {
+    const [originalSrcs, fontEmbedCSS] = await Promise.all([
+      convertImagesToDataUrls(screenshotFrame.value),
+      buildFontEmbedCSS()
+    ])
+
+    const dataUrl = await toJpeg(screenshotFrame.value, {
+      quality: 0.7,
+      fontEmbedCSS,
+      backgroundColor: '#ffffff',
+      width: screenshotFrame.value.scrollWidth,
+      height: screenshotFrame.value.scrollHeight,
+      style: {
+        margin: '0',
+        transform: 'none'
+      }
+    })
+
+    const link = document.createElement('a')
+    link.download = 'vip-newsletter.jpeg'
+    link.href = dataUrl
+    link.click()
+
+    restoreImageSrcs(originalSrcs)
+  } catch (error) {
+    console.error('Screenshot failed:', error)
+  } finally {
+    isCapturing.value = false
+  }
+}
 </script>
 
 <template>
@@ -277,6 +380,17 @@ const currentData = computed(() => {
             ROI
           </UButton>
         </div>
+      </div>
+
+      <!-- Screenshot -->
+      <div class="mb-4 border-t pt-4">
+        <UButton
+          @click="takeScreenshot"
+          :loading="isCapturing"
+          class="text-sm w-full"
+        >
+          Screenshot
+        </UButton>
       </div>
 
       <!-- Component visibility controls -->
@@ -339,7 +453,7 @@ const currentData = computed(() => {
       </div>
     </UCard>
 
-    <div v-if="csvData.length > 0" class="max-w-[600px] mx-auto shadow-xl text-center py-6 text-[#333] bg-white">
+    <div v-if="csvData.length > 0" ref="email-screenshot" class="max-w-[600px] mx-auto shadow-xl text-center py-6 text-[#333] bg-white">
       
       <!-- logo -->
       <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/e2eeab4e28f3c67efb69b0c380433eec5360ba0df24231b42c584ce7d7993566.png" alt="Sky" class="w-[100px] h-[62px] mx-auto">
@@ -585,9 +699,14 @@ const currentData = computed(() => {
           If you do not want to continue to receive these newsletters please <a href="#" class="underline">click on this link</a>.
           <br><br>
           Please do not reply to this email as this address is not&nbsp;monitored.
-          <br><br>
-          {{ currentData.Legal_Copy }}
-          {{ currentData.Legal_Copy_Extra }}
+          <template v-if="currentData.Legal_Copy">
+            <br><br>
+            {{ currentData.Legal_Copy }}
+          </template>
+          <template v-if="currentData.Legal_Copy_Extra">
+            <br><br>
+            {{ currentData.Legal_Copy_Extra }}
+          </template>
           <br><br>
           &#169; 2025 Sky UK Ltd. Sky UK Ltd (company no. 02906991) has its registered office at Grant Way, Isleworth, Middlesex&nbsp;TW7&nbsp;5QD.
         </p>
