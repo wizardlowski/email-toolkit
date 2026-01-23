@@ -18,6 +18,8 @@ const csvFile = ref<File | null>(null)
 const fileOpened = ref(false)
 const errorMessage = ref('')
 const csvData = ref<CSVRow[]>([])
+const hiddenColumns = ref<CSVRow[]>([])
+const regions = ref<string[]>([])
 const columnCount = ref(0)
 const collapsedRows = ref<Set<number>>(new Set())
 
@@ -107,20 +109,39 @@ function parseCSV(text: string) {
     const dataRowCount = dataArrays.length - 1
     columnCount.value = dataRowCount
 
+    // Filter out data rows that are entirely empty
+    const nonEmptyRowIndices: number[] = []
+    for (let rowIndex = 1; rowIndex <= dataRowCount; rowIndex++) {
+      const rowData = dataArrays[rowIndex]
+      if (rowData && rowData.some(v => v !== '')) {
+        nonEmptyRowIndices.push(rowIndex)
+      }
+    }
+
+    columnCount.value = nonEmptyRowIndices.length
+
+    const hiddenLabels = ['region', 'currency_code']
     const rows: CSVRow[] = []
+    const hidden: CSVRow[] = []
 
     for (let colIndex = 0; colIndex < headers.length; colIndex++) {
       const label = headers[colIndex] ?? `Column ${colIndex + 1}`
-      const values: string[] = []
+      const values = nonEmptyRowIndices.map(i => dataArrays[i]?.[colIndex] || '')
+      const entry = { label, values }
 
-      for (let rowIndex = 1; rowIndex <= dataRowCount; rowIndex++) {
-        values.push(dataArrays[rowIndex]?.[colIndex] || '')
+      if (hiddenLabels.includes(label.toLowerCase())) {
+        hidden.push(entry)
+      } else {
+        rows.push(entry)
       }
-
-      rows.push({ label, values })
     }
 
-    csvData.value = rows
+    // Extract region values for row labels
+    const regionCol = hidden.find(c => c.label.toLowerCase() === 'region')
+    regions.value = regionCol ? regionCol.values : []
+
+    hiddenColumns.value = hidden
+    csvData.value = rows.filter(row => !row.values.every(v => v === ''))
   } catch (error) {
     console.error('Error parsing CSV:', error)
     errorMessage.value = 'Error: Failed to parse CSV file'
@@ -139,6 +160,8 @@ function clearAll() {
   fileOpened.value = false
   errorMessage.value = ''
   csvData.value = []
+  hiddenColumns.value = []
+  regions.value = []
   columnCount.value = 0
   collapsedRows.value = new Set()
 }
@@ -163,12 +186,13 @@ function downloadCSV() {
   if (!csvFile.value || csvData.value.length === 0) return
 
   const csvRows: string[][] = []
+  const allColumns = [...hiddenColumns.value, ...csvData.value]
 
-  const headerRow = csvData.value.map(row => row.label)
+  const headerRow = allColumns.map(row => row.label)
   csvRows.push(headerRow)
 
   for (let i = 0; i < columnCount.value; i++) {
-    const dataRow = csvData.value.map(row => row.values[i] || '')
+    const dataRow = allColumns.map(row => row.values[i] || '')
     csvRows.push(dataRow)
   }
 
@@ -364,23 +388,26 @@ const gridClass = computed(() => {
         </div>
 
         <!-- Dynamic value columns -->
-        <div v-for="(val, vIndex) in row.values" :key="vIndex" v-show="!collapsedRows.has(index)">
-          <div v-if="isImageUrl(val)" class="mb-2 flex justify-center">
-            <img
-              :src="val"
-              :alt="'Preview for ' + row.label"
-              class="max-w-xs h-auto max-h-32 object-contain rounded"
-              @error="handleImageError"
-              @load="handleImageLoad"
+        <div v-show="!collapsedRows.has(index)" :class="columnCount > 1 ? 'grid grid-cols-2 gap-4' : ''">
+          <div v-for="(val, vIndex) in row.values" :key="vIndex">
+            <p v-if="columnCount > 1 && regions[vIndex]" class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1">{{ regions[vIndex] }}</p>
+            <div v-if="isImageUrl(val)" class="mb-2 flex justify-center">
+              <img
+                :src="val"
+                :alt="'Preview for ' + row.label"
+                class="max-w-xs h-auto max-h-32 object-contain rounded"
+                @error="handleImageError"
+                @load="handleImageLoad"
+              />
+            </div>
+            <UTextarea
+              v-model="row.values[vIndex]"
+              :rows="3"
+              :placeholder="`Value ${vIndex + 1}`"
+              class="w-full"
+              spellcheck="true"
             />
           </div>
-          <UTextarea
-            v-model="row.values[vIndex]"
-            :rows="3"
-            :placeholder="`Value ${vIndex + 1}`"
-            class="w-full"
-            spellcheck="true"
-          />
         </div>
       </UCard>
     </div>
