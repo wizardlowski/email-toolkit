@@ -13,8 +13,8 @@
 </script>
 
 <template>
-  <div class="flex flex-col items-center">
-    <UButton v-for="route in toolsToLink" :to="route.path" class="w-80 mt-6">
+  <div class="grid grid-cols-2 gap-4 w-[60%] max-w-3xl mx-auto p-2 items-start content-start">
+    <UButton v-for="route in toolsToLink" :to="route.path" class="w-full">
       {{ route.name }}
     </UButton>
   </div>
