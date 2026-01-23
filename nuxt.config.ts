@@ -18,5 +18,6 @@ export default defineNuxtConfig({
     '/logik': { ssr: false },
     '/tinyimg': { ssr: false },
     '/vip-upload-gen': { ssr: false },
+    '/get-store-movies': { ssr: false },
   }
 })
