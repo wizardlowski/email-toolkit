@@ -19,6 +19,7 @@ const fileOpened = ref(false)
 const errorMessage = ref('')
 const csvData = ref<CSVRow[]>([])
 const columnCount = ref(0)
+const collapsedRows = ref<Set<number>>(new Set())
 
 // Add Images modal state
 const showAddImagesModal = ref(false)
@@ -139,6 +140,7 @@ function clearAll() {
   errorMessage.value = ''
   csvData.value = []
   columnCount.value = 0
+  collapsedRows.value = new Set()
 }
 
 function isImageUrl(url: string): boolean {
@@ -290,6 +292,26 @@ function applyAddImages() {
   showAddImagesModal.value = false
 }
 
+function toggleRow(index: number) {
+  const s = collapsedRows.value
+  if (s.has(index)) {
+    s.delete(index)
+  } else {
+    s.add(index)
+  }
+  collapsedRows.value = new Set(s)
+}
+
+function collapseEmpty() {
+  const s = new Set(collapsedRows.value)
+  csvData.value.forEach((row, index) => {
+    if (row.values.every(v => v === '')) {
+      s.add(index)
+    }
+  })
+  collapsedRows.value = s
+}
+
 const gridClass = computed(() => {
   const cols = columnCount.value || 1
   return `p-4 sm:p-4 grid grid-cols-[300px_repeat(${cols},1fr)] gap-4 items-start`
@@ -302,6 +324,9 @@ const gridClass = computed(() => {
       <div class="flex justify-center gap-4 mb-4">
         <UButton @click="clearAll" :disabled="!csvFile">
           Clear All
+        </UButton>
+        <UButton @click="collapseEmpty" :disabled="!csvFile || csvData.length === 0">
+          Collapse Empty
         </UButton>
         <UButton @click="showAddImagesModal = true" :disabled="!csvFile || csvData.length === 0">
           Add Images
@@ -331,14 +356,15 @@ const gridClass = computed(() => {
         :ui="{ body: gridClass }"
       >
         <!-- Label -->
-        <div class="flex items-center">
+        <div class="flex items-center cursor-pointer select-none" @click="toggleRow(index)">
+          <UIcon :name="collapsedRows.has(index) ? 'i-lucide-chevron-right' : 'i-lucide-chevron-down'" class="mr-2 shrink-0" />
           <h3 class="text-lg font-bold text-neutral-900 dark:text-white break-words">
             {{ row.label }}
           </h3>
         </div>
 
         <!-- Dynamic value columns -->
-        <div v-for="(val, vIndex) in row.values" :key="vIndex">
+        <div v-for="(val, vIndex) in row.values" :key="vIndex" v-show="!collapsedRows.has(index)">
           <div v-if="isImageUrl(val)" class="mb-2 flex justify-center">
             <img
               :src="val"
