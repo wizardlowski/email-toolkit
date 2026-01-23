@@ -35,11 +35,29 @@ function downloadHtml() {
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
 }
+
+function reset() {
+  files.value = []
+  generatedHtml.value = ''
+}
 </script>
 
 <template>
   <div class="p-4 min-h-full">
+    <div v-if="generatedHtml">
+      <div class="flex justify-end gap-4 mb-2">
+        <UButton color="primary" @click="downloadHtml">
+          Save HTML
+        </UButton>
+        <UButton color="primary" @click="reset">
+          Reset
+        </UButton>
+      </div>
+      <pre class="p-4 rounded bg-neutral-100 dark:bg-neutral-800 overflow-x-auto text-sm">{{ generatedHtml }}</pre>
+    </div>
+
     <FileDropZone
+      v-else
       accept="image/*"
       :multiple="true"
       icon="image"
@@ -50,13 +68,5 @@ function downloadHtml() {
       class="mb-6"
     />
 
-    <div v-if="generatedHtml">
-      <div class="flex justify-end mb-2">
-        <UButton color="primary" @click="downloadHtml">
-          Save HTML
-        </UButton>
-      </div>
-      <pre class="p-4 rounded bg-neutral-100 dark:bg-neutral-800 overflow-x-auto text-sm">{{ generatedHtml }}</pre>
-    </div>
   </div>
 </template>
