@@ -17,5 +17,6 @@ export default defineNuxtConfig({
     '/text-compare': { prerender: true },
     '/logik': { ssr: false },
     '/tinyimg': { ssr: false },
+    '/vip-upload-gen': { ssr: false },
   }
 })
