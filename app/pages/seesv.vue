@@ -11,14 +11,20 @@ definePageMeta({
 
 interface CSVRow {
   label: string
-  column2: string
-  column3: string
+  values: string[]
 }
 
 const csvFile = ref<File | null>(null)
 const fileOpened = ref(false)
 const errorMessage = ref('')
 const csvData = ref<CSVRow[]>([])
+const columnCount = ref(0)
+
+// Add Images modal state
+const showAddImagesModal = ref(false)
+const addImagesPasteContent = ref('')
+
+const toast = useToast()
 
 function handleImageError(event: Event) {
   const target = event.target as HTMLImageElement
@@ -26,7 +32,7 @@ function handleImageError(event: Event) {
 }
 
 function handleImageLoad(event: Event) {
-  const target = event.target as HTMLImageElement  
+  const target = event.target as HTMLImageElement
   target.style.display = 'block'
 }
 
@@ -51,10 +57,10 @@ async function handleDropZoneFiles(files: File[]) {
 
 async function processFile(file: File) {
   errorMessage.value = ''
-  
+
   const fileExtension = file.name.split('.').pop()?.toLowerCase()
   const isCSV = fileExtension === 'csv' || file.type === 'text/csv'
-  
+
   if (!isCSV) {
     errorMessage.value = 'Error: Please select a CSV file only'
     fileOpened.value = false
@@ -65,7 +71,7 @@ async function processFile(file: File) {
   try {
     const text = await file.text()
     await parseCSV(text)
-    
+
     csvFile.value = file
     fileOpened.value = true
   } catch (error) {
@@ -82,34 +88,37 @@ function parseCSV(text: string) {
       skipEmptyLines: true,
       transform: (value: string) => value.trim()
     })
-    
+
     if (result.errors.length > 0) {
       console.warn('CSV parsing errors:', result.errors)
     }
-    
-    const rows: CSVRow[] = []
-    
+
     const dataArrays = result.data as string[][]
     if (dataArrays.length === 0) {
       return
     }
-    
+
     const headers = dataArrays[0]
     if (!headers) {
       return
     }
-    
-    // Create a row for each header/label
+
+    const dataRowCount = dataArrays.length - 1
+    columnCount.value = dataRowCount
+
+    const rows: CSVRow[] = []
+
     for (let colIndex = 0; colIndex < headers.length; colIndex++) {
       const label = headers[colIndex] ?? `Column ${colIndex + 1}`
-      
-      rows.push({
-        label: label,
-        column2: dataArrays[1] ? (dataArrays[1][colIndex] || '') : '',
-        column3: dataArrays[2] ? (dataArrays[2][colIndex] || '') : ''
-      })
+      const values: string[] = []
+
+      for (let rowIndex = 1; rowIndex <= dataRowCount; rowIndex++) {
+        values.push(dataArrays[rowIndex]?.[colIndex] || '')
+      }
+
+      rows.push({ label, values })
     }
-    
+
     csvData.value = rows
   } catch (error) {
     console.error('Error parsing CSV:', error)
@@ -124,19 +133,20 @@ function clearAll() {
       return
     }
   }
-  
+
   csvFile.value = null
   fileOpened.value = false
   errorMessage.value = ''
   csvData.value = []
+  columnCount.value = 0
 }
 
 function isImageUrl(url: string): boolean {
   if (!url || typeof url !== 'string') return false
-  
+
   const imageExtensions = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i
   const isHttpUrl = /^https?:\/\/.+/i.test(url)
-  
+
   return isHttpUrl && (
     imageExtensions.test(url) ||
     url.includes('movableink') ||
@@ -150,22 +160,18 @@ function isImageUrl(url: string): boolean {
 function downloadCSV() {
   if (!csvFile.value || csvData.value.length === 0) return
 
-  // Transform the data back to CSV format
   const csvRows: string[][] = []
 
   const headerRow = csvData.value.map(row => row.label)
   csvRows.push(headerRow)
 
-  const dataRow1 = csvData.value.map(row => row.column2)
-  const dataRow2 = csvData.value.map(row => row.column3)
-
-  csvRows.push(dataRow1)
-  csvRows.push(dataRow2)
-
+  for (let i = 0; i < columnCount.value; i++) {
+    const dataRow = csvData.value.map(row => row.values[i] || '')
+    csvRows.push(dataRow)
+  }
 
   const csvString = Papa.unparse(csvRows)
 
-  // Add UTF-8 BOM to ensure proper encoding recognition
   const blob = new Blob(['\uFEFF' + csvString], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
@@ -176,6 +182,118 @@ function downloadCSV() {
   document.body.removeChild(link)
   URL.revokeObjectURL(url)
 }
+
+// --- Add Images logic ---
+
+function normalizeLabel(label: string): string {
+  return label.toLowerCase()
+}
+
+function normalizeLabelStripS(label: string): string {
+  return label.toLowerCase().split('_').map(seg => seg.replace(/s$/, '')).join('_')
+}
+
+function findMatchingRow(columnName: string): CSVRow | null {
+  // Direct match
+  const direct = csvData.value.find(r => r.label === columnName)
+  if (direct) return direct
+
+  // Case-insensitive
+  const lower = normalizeLabel(columnName)
+  const ciMatch = csvData.value.find(r => normalizeLabel(r.label) === lower)
+  if (ciMatch) return ciMatch
+
+  // Strip trailing 's' from segments
+  const stripped = normalizeLabelStripS(columnName)
+  const stripMatch = csvData.value.find(r => normalizeLabelStripS(r.label) === stripped)
+  if (stripMatch) return stripMatch
+
+  return null
+}
+
+interface ParsedMapping {
+  columnName: string
+  path: string
+}
+
+function parsePasteContent(content: string): ParsedMapping[] {
+  const mappings: ParsedMapping[] = []
+
+  if (content.includes('<img')) {
+    // HTML format
+    const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]+alt=["']([^"']+)["']|<img[^>]+alt=["']([^"']+)["'][^>]+src=["']([^"']+)["']/gi
+    let match
+    while ((match = imgRegex.exec(content)) !== null) {
+      const src = match[1] || match[4] || ''
+      let alt = match[2] || match[3] || ''
+      // Strip file extension from alt text
+      alt = alt.replace(/\.(png|jpe?g|gif|bmp|webp|svg)$/i, '')
+      if (src && alt) {
+        mappings.push({ columnName: alt.trim(), path: src.trim() })
+      }
+    }
+  } else {
+    // Text format - lines like: "23/01/2026 13:09:39    Column_Name:https://..."
+    const lines = content.split('\n')
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (!trimmed) continue
+
+      // Strip leading timestamp (DD/MM/YYYY HH:MM:SS or YYYY-MM-DD HH:MM:SS + whitespace)
+      const withoutTimestamp = trimmed
+        .replace(/^\d{2}\/\d{2}\/\d{4}\s+\d{2}:\d{2}:\d{2}\s+/, '')
+        .replace(/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+/, '')
+
+      if (!withoutTimestamp.includes(':')) continue
+
+      const colonIndex = withoutTimestamp.indexOf(':')
+      const columnName = withoutTimestamp.substring(0, colonIndex).trim()
+      const path = withoutTimestamp.substring(colonIndex + 1).trim()
+
+      if (columnName && path) {
+        mappings.push({ columnName, path })
+      }
+    }
+  }
+
+  return mappings
+}
+
+function applyAddImages() {
+  const mappings = parsePasteContent(addImagesPasteContent.value)
+  if (mappings.length === 0) {
+    toast.add({ title: 'No mappings found in pasted content', color: 'warning' })
+    return
+  }
+
+  const unmatched: string[] = []
+
+  for (const { columnName, path } of mappings) {
+    const row = findMatchingRow(columnName)
+    if (row) {
+      for (let i = 0; i < row.values.length; i++) {
+        row.values[i] = path
+      }
+    } else {
+      unmatched.push(columnName)
+    }
+  }
+
+  if (unmatched.length > 0) {
+    toast.add({
+      title: `${unmatched.length} unmatched column(s): ${unmatched.join(', ')}`,
+      color: 'warning'
+    })
+  }
+
+  addImagesPasteContent.value = ''
+  showAddImagesModal.value = false
+}
+
+const gridClass = computed(() => {
+  const cols = columnCount.value || 1
+  return `p-4 sm:p-4 grid grid-cols-[300px_repeat(${cols},1fr)] gap-4 items-start`
+})
 </script>
 
 <template>
@@ -185,15 +303,18 @@ function downloadCSV() {
         <UButton @click="clearAll" :disabled="!csvFile">
           Clear All
         </UButton>
+        <UButton @click="showAddImagesModal = true" :disabled="!csvFile || csvData.length === 0">
+          Add Images
+        </UButton>
         <UButton @click="downloadCSV" :disabled="!csvFile || csvData.length === 0" color="primary">
           Download
         </UButton>
       </div>
     </div>
 
-    <FileDropZone 
+    <FileDropZone
       v-if="!fileOpened"
-      accept=".csv,text/csv" 
+      accept=".csv,text/csv"
       title="Drag and drop CSV file here"
       button-text="Choose CSV File"
       @drop="handleDropZoneFiles"
@@ -203,59 +324,62 @@ function downloadCSV() {
 
     <UAlert v-if="errorMessage" color="error" variant="soft" :title="errorMessage" icon="i-lucide-circle-alert" class="mb-6" />
 
-
     <div v-if="csvData.length > 0" class="space-y-4">
       <UCard
         v-for="(row, index) in csvData"
         :key="index"
-        :ui="{ body: 'p-4 sm:p-4 grid grid-cols-[300px_1fr_1fr] gap-4 items-start' }"
+        :ui="{ body: gridClass }"
       >
-        <!-- Label (First Column) -->
+        <!-- Label -->
         <div class="flex items-center">
           <h3 class="text-lg font-bold text-neutral-900 dark:text-white break-words">
             {{ row.label }}
           </h3>
         </div>
-        
-        <div>
-          <div v-if="isImageUrl(row.column2)" class="mb-2 flex justify-center">
-            <img 
-              :src="row.column2" 
+
+        <!-- Dynamic value columns -->
+        <div v-for="(val, vIndex) in row.values" :key="vIndex">
+          <div v-if="isImageUrl(val)" class="mb-2 flex justify-center">
+            <img
+              :src="val"
               :alt="'Preview for ' + row.label"
               class="max-w-xs h-auto max-h-32 object-contain rounded"
               @error="handleImageError"
               @load="handleImageLoad"
             />
           </div>
-          <UTextarea 
-            v-model="row.column2" 
+          <UTextarea
+            v-model="row.values[vIndex]"
             :rows="3"
-            placeholder="Column 2 value"
-            class="w-full"
-            spellcheck="true"
-          />
-        </div>
-        
-        <div>
-          <div v-if="isImageUrl(row.column3)" class="mb-2 flex justify-center">
-            <img 
-              :src="row.column3" 
-              :alt="'Preview for ' + row.label"
-              class="max-w-xs h-auto max-h-32 object-contain rounded"
-              @error="handleImageError"
-              @load="handleImageLoad"
-            />
-          </div>
-          <UTextarea 
-            v-model="row.column3" 
-            :rows="3"
-            placeholder="Column 3 value"
+            :placeholder="`Value ${vIndex + 1}`"
             class="w-full"
             spellcheck="true"
           />
         </div>
       </UCard>
     </div>
+
+    <!-- Add Images Modal -->
+    <UModal v-model:open="showAddImagesModal">
+      <template #content>
+        <div class="p-6">
+          <h3 class="text-lg font-semibold mb-4">Add Images</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-3">
+            Paste HTML img tags or text with column_name: url format
+          </p>
+          <UTextarea
+            v-model="addImagesPasteContent"
+            :rows="10"
+            placeholder="<img src=&quot;https://...&quot; alt=&quot;Column_Name&quot;>&#10;or&#10;Column_Name: https://..."
+            class="w-full mb-4"
+          />
+          <div class="flex justify-end gap-2">
+            <UButton variant="ghost" @click="showAddImagesModal = false">Cancel</UButton>
+            <UButton color="primary" @click="applyAddImages" :disabled="!addImagesPasteContent.trim()">Submit</UButton>
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>
 
