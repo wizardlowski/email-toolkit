@@ -141,7 +141,16 @@ function parseCSV(text: string) {
     regions.value = regionCol ? regionCol.values : []
 
     hiddenColumns.value = hidden
-    csvData.value = rows.filter(row => !row.values.every(v => v === ''))
+    csvData.value = rows
+
+    // Auto-collapse rows where all values are empty
+    const emptyIndices = new Set<number>()
+    rows.forEach((row, index) => {
+      if (row.values.every(v => v === '')) {
+        emptyIndices.add(index)
+      }
+    })
+    collapsedRows.value = emptyIndices
   } catch (error) {
     console.error('Error parsing CSV:', error)
     errorMessage.value = 'Error: Failed to parse CSV file'
