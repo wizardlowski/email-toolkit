@@ -42,20 +42,24 @@ function cleanTheLegalTextOut () {
     stripHtml: false,
   }).res;
 
-  outputText.value = addTheLinkBits(cleaned)
+  outputText.value = addNonBreakingHyphens(addTheLinkBits(cleaned))
+}
+
+function addNonBreakingHyphens (txt: string) {
+  return txt.split(/(<[^>]*>)/).map(segment =>
+    segment.startsWith('<') ? segment : segment.replace(/-/g, '&zwj;-&zwj;')
+  ).join('')
 }
 
 function addTheLinkBits (txt: string) {
   const replacer = (match: string, offset: number, string: string) => {
-    let url;
-    if (!match.includes('https://') && !match.includes('www.')) {
-      url = 'https://www.' + match
-    }
-    if (!match.includes('https://') && match.includes('www.')) {
-      url = 'https://' + match
-    }
-    if (match.includes('https://www.') || match.includes('http://www.')) {
+    let url
+    if (match.includes('https://') || match.includes('http://')) {
       url = match
+    } else if (match.includes('www.')) {
+      url = 'https://' + match
+    } else {
+      url = 'https://' + match
     }
     return `<a href="${url}" target="_blank" style="color:#${colourValue.value}; text-decoration:${underlineStyle.value};">${match}</a>`
   }
