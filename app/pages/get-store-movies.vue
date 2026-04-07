@@ -20,8 +20,7 @@ async function fetchMovies() {
       result[`title${n}`] = item.title
       const imageLink = item.links?.find((l: any) => l.rel === 'image')
       if (imageLink) result[`image${n}`] = imageLink.href.split('?')[0]
-      const selfLink = item.links?.find((l: any) => l.rel === 'self')
-      if (selfLink) result[`link${n}`] = selfLink.href
+      result[`link${n}`] = `https://www.skystore.com/product/${item.slug}/${item.id}`
     })
 
     output.value = JSON.stringify(result, null, 2)
