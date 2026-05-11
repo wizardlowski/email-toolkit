@@ -30,7 +30,7 @@ const showExtraEnt = ref(true)
 const podFieldMappings = [
   {
     showRef: showSports,
-    fields: ['Sports_Heading', 'Sports_1_Image_URL', 'Sports_2_Image_URL', 'Sports_3_Image_URL', 'Sports_Copy', 'Sports_CTA_URL', 'Sports_CTA_Copy']
+    fields: ['Sports_Heading', 'Sports_1_Image_URL', 'Sports_Copy', 'Sports_CTA_URL', 'Sports_CTA_Copy']
   },
   {
     showRef: showRewardsOnRepeat,
@@ -493,14 +493,13 @@ async function takeScreenshot() {
       <VIPContent 
         v-if="showSports"
         :headingText="currentData.Sports_Heading"
-        :imgUrl="[currentData.Sports_1_Image_URL,currentData.Sports_2_Image_URL,currentData.Sports_3_Image_URL]"
+        :imgUrl="currentData.Sports_1_Image_URL"
         :text="currentData.Sports_Copy"
         :ctaUrl="currentData.Sports_CTA_URL"
         :ctaText="currentData.Sports_CTA_Copy"
-        type="cols"
         :csvColumns="{
           headingText: 'Sports Heading',
-          imgUrl: 'Sports Image URLs (1, 2, 3)',
+          imgUrl: 'Sports Image URL',
           text: 'Sports Copy',
           ctaUrl: 'Sports CTA URL',
           ctaText: 'Sports CTA Copy'
@@ -708,7 +707,7 @@ async function takeScreenshot() {
             {{ currentData.Legal_Copy_Extra }}
           </template>
           <br><br>
-          &#169; 2025 Sky UK Ltd. Sky UK Ltd (company no. 02906991) has its registered office at Grant Way, Isleworth, Middlesex&nbsp;TW7&nbsp;5QD.
+          &#169; {{ new Date().getFullYear() }} Sky UK Ltd. Sky UK Ltd (company no. 02906991) has its registered office at Grant Way, Isleworth, Middlesex&nbsp;TW7&nbsp;5QD.
         </p>
       </div>
     </div>
