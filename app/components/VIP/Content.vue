@@ -1,15 +1,10 @@
 <script setup>
 const props = defineProps({
     headingText: String,
-    imgUrl: [String, Array],
+    imgUrl: String,
     text: String,
     ctaUrl: String,
     ctaText: String,
-    type: {
-        type: String,
-        default: 'large',
-        validator: value => ['large', 'cols'].includes(value)
-    },
     csvColumns: {
         type: Object,
         default: () => ({
@@ -24,7 +19,7 @@ const props = defineProps({
 
 const missingFields = computed(() => {
     const missing = []
-    if (!props.headingText) missing.push(props.csvColumns.headingText)
+    if (props.headingText && props.headingText === "") missing.push(props.csvColumns.headingText)
     
     // Check imgUrl - for arrays, check if any individual URLs are missing
     if (!props.imgUrl || (Array.isArray(props.imgUrl) && props.imgUrl.length === 0)) {
@@ -50,26 +45,21 @@ const missingFields = computed(() => {
     </div>
 
     <template v-else>
-        <VIPHeading>
-            {{ headingText }}
-        </VIPHeading>
+        <div class="pb-12">
+            <h2 v-if="headingText" class="text-[28px] leading-8 mt-0 mx-6 mb-1">
+                {{ headingText }}
+            </h2>
 
-        <div v-if="type === 'cols'" class="inline-flex w-[500px] gap-2">
-            <img v-for="(url, index) in (Array.isArray(imgUrl) ? imgUrl.slice(0, 3) : [imgUrl, imgUrl, imgUrl])" 
-                :key="index" 
-                :src="url" 
-                alt="" 
-                class="flex-1 rounded-[5px]">
+            <img :src="imgUrl" alt="">
+
+            <p class="text-[17px] leading-[22px] mt-1 mx-6 mb-6">
+                {{ text }}
+            </p>
+
+            <a :href="ctaUrl" target="_blank" class="bg-[#000FF5] text-white rounded-[4px] inline-block w-[328px] leading-11 align-middle text-[18px] font-bold">
+                {{ ctaText }}
+            </a>
+
         </div>
-
-        <img v-else :src="imgUrl" alt="">
-
-        <VIPCopy>
-            {{ text }}
-        </VIPCopy>
-
-        <VIPCTA :url="ctaUrl">
-            {{ ctaText }}
-        </VIPCTA>
     </template>
 </template>

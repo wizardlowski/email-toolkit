@@ -463,7 +463,7 @@ async function takeScreenshot() {
         {{ currentData.Main_Headline }}
       </h1>
 
-      <VIPHero 
+      <VIPContent 
         v-if="showTacticalHero"
         :imgUrl="currentData.Tactical_Hero_Image_URL" 
         :text="currentData.Tactical_Hero_Copy"
@@ -476,7 +476,7 @@ async function takeScreenshot() {
           ctaText: 'Tactical Hero CTA Copy'
         }"
       />
-      <VIPHero 
+      <VIPContent 
         v-else
         :imgUrl="currentData.Hero_Image_URL" 
         :text="currentData.Hero_Copy"
@@ -525,7 +525,7 @@ async function takeScreenshot() {
       <VIPContent 
         v-if="showExperience"
         :headingText="currentData.Experience_Heading"
-        :imgUrl="[currentData.Experience_1_Image_URL,currentData.Experience_2_Image_URL,currentData.Experience_3_Image_URL]"
+        :imgUrl="currentData.Experience_1_Image_URL"
         :text="currentData.Experience_Copy"
         :ctaUrl="currentData.Experience_CTA_URL"
         :ctaText="currentData.Experience_CTA_Copy"
@@ -683,9 +683,9 @@ async function takeScreenshot() {
         }"
       />
 
-      <VIPHeading class="mb-12">
-        {{ currentData.Signoff_Copy }}
-      </VIPHeading>
+      <p class="text-[21px] leading-6 mt0 mx-6 mb-12">
+        <b>{{ currentData.Signoff_Copy }}</b>
+      </p>
 
       <div class="h-[6px] gradient"></div>
 
