@@ -1,16 +1,23 @@
 export const footerStart = `<table border="0" cellpadding="0" cellspacing="0" role="presentation" align="center" width="90%">
 <tr>
-  <td align="center" style="font-family: Arial, sans-serif; font-size: 10px; color: #777777; mso-line-height-rule: exactly; line-height: 13px;">
-    <a href="https://www.sky.com/help/articles/sky-privacy-and-cookies-notice" style="color: #777777; text-decoration: underline; white-space: nowrap" target="_blank">Privacy Policy</a> |
-    <a href="https://www.sky.com/help/articles/sky-terms-and-conditions" style="color: #777777; text-decoration: underline; white-space: nowrap" target="_blank">Terms and Conditions</a><span class="mobilehide"> | </span>
-    <span class="rwd-line"><a href="unsub" style="color: #777777; text-decoration: underline; white-space: nowrap" target="_blank">Unsubscribe</a> |
-    <a href="https://www.sky.com/help/articles/contacting-sky" style="color: #777777; text-decoration: underline; white-space: nowrap" target="_blank">Contact us</a> |
-    <a href="https://www.sky.com/signin" style="color: #777777; text-decoration: underline; white-space: nowrap" target="_blank">My Account</a></span>
+  <td align="center" style="padding: 40px 0 35px 0;">
+    <a href="https://www.sky.com" target="_blank">
+      <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/7d972f3067684c6d08fe133217e8210074e430a3b401295b80c60cc2b8209c20.png" alt="Sky" style="display: block; border: none;" width="70" />
+    </a>
+  </td>
+</tr>
+<tr>
+  <td align="center" style="font-family: Arial, sans-serif; font-size: 10px; color: #333333; mso-line-height-rule: exactly; line-height: 13px;">
+    <a href="https://www.sky.com/help/articles/sky-privacy-and-cookies-notice" style="color: #333333; text-decoration: underline; white-space: nowrap" target="_blank">Privacy Policy</a> |
+    <a href="https://www.sky.com/help/articles/sky-terms-and-conditions" style="color: #333333; text-decoration: underline; white-space: nowrap" target="_blank">Terms and Conditions</a><span class="mobilehide"> | </span>
+    <span class="rwd-line"><a href="unsub" style="color: #333333; text-decoration: underline; white-space: nowrap" target="_blank">Unsubscribe</a> |
+    <a href="https://www.sky.com/help/articles/contacting-sky" style="color: #333333; text-decoration: underline; white-space: nowrap" target="_blank">Contact us</a> |
+    <a href="https://www.sky.com/signin" style="color: #333333; text-decoration: underline; white-space: nowrap" target="_blank">My Account</a></span>
   </td>
 </tr>
 <tr>
   <td style="padding-top: 15px;">
-    <p style="margin: 0; color: #777777; font-family: Arial, Helvetica, sans-serif; font-size: 10px; line-height: 13px; mso-line-height-rule: exactly;text-align: center;">
+    <p style="margin: 0; color: #333333; font-family: Arial, Helvetica, sans-serif; font-size: 10px; line-height: 13px; mso-line-height-rule: exactly;text-align: center;">
       You've agreed to receive marketing from Sky. <br class="mobilehide">
       This marketing message highlights more of what Sky has to offer that may interest&nbsp;you.
       <br><br>
