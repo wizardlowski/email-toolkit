@@ -2,7 +2,7 @@
 // @ts-ignore
 import ejs from 'ejs'
 
-import { footerStart, footerEnd, gridSTV, gridCIN, cinWeeklyMovies, fixDecimal, forwardXDays, formatPricePoint } from '~/util/logik-includes.js'
+import { footerStart, footerEnd, gridSTV, gridCIN, cinWeeklyMovies, fixDecimal, forwardXDays, formatPricePoint, storeLocator, SpotlightHelpers } from '~/util/logik-includes.js'
 
 useHead({
   title: 'Logik'
@@ -82,6 +82,8 @@ const inputHTML = computed(() => {
                     .replace("<%@ include view='fixDecimal' %>", fixDecimal)
                     .replace("<%@ include view='forwardXDays' %>", forwardXDays)
                     .replace("<%@ include view='formatPricePoint' %>", formatPricePoint)
+                    .replace("<%@ include view='storeLocator' %>", storeLocator)
+                    .replace("<%@ include view='SpotlightHelpers' %>", SpotlightHelpers)
                     .replace(/<%=/g, '<%-')
   return processed;
 })

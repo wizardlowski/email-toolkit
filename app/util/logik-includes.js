@@ -1,12 +1,5 @@
 export const footerStart = `<table border="0" cellpadding="0" cellspacing="0" role="presentation" align="center" width="90%">
 <tr>
-  <td align="center" style="padding: 40px 0 35px 0;">
-    <a href="https://www.sky.com" target="_blank">
-      <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/7d972f3067684c6d08fe133217e8210074e430a3b401295b80c60cc2b8209c20.png" alt="Sky" style="display: block; border: none;" width="70" />
-    </a>
-  </td>
-</tr>
-<tr>
   <td align="center" style="font-family: Arial, sans-serif; font-size: 10px; color: #777777; mso-line-height-rule: exactly; line-height: 13px;">
     <a href="https://www.sky.com/help/articles/sky-privacy-and-cookies-notice" style="color: #777777; text-decoration: underline; white-space: nowrap" target="_blank">Privacy Policy</a> |
     <a href="https://www.sky.com/help/articles/sky-terms-and-conditions" style="color: #777777; text-decoration: underline; white-space: nowrap" target="_blank">Terms and Conditions</a><span class="mobilehide"> | </span>
@@ -321,4 +314,226 @@ function formatPricePoint(value, options) {
   // return 2 digit
   return '<span style="font-size:'+ smallFontSize +'px; line-height:1px;" class="price-inner-small">' + currency + '</span>' + value;
 }
+%>`
+
+export const storeLocator = `<table cellspacing="0" cellpadding="0" border="0" width="552" align="center" role="presentation" class="deviceWidth">
+  <tr>
+    <th style="width:248px" class="col-stack pb16">
+      <h2 style="color: #333333; text-align: center; font-family: 'sky_headline','sky_textmedium','Sky Text',Arial,sans-serif; font-size:18px; line-height:1.2; margin: 0 0 16px 0; display: none" class="mobileshow">
+        Visit your nearest store
+      </h2>
+      
+      <p style="color: #333333; text-align: center; margin: 0; font-family: 'sky_textregular','Sky Text',Arial,sans-serif;">
+        <a href="https://www.sky.com/shop/store-locator?qp=TW7%205QD" target="_blank">
+        <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/81347f6adec8986bed2a60a51db56f3ada62d09fc11c65b34ce78d2fe7e43702.jpg" width="248" style="border-radius: 12px;" class="deviceWidth90 rounded-all" alt="Decorative image." aria-hidden="true"></a>
+      </p>
+    </th>
+    <th style="width:24px" class="mobilehide">&zwj;</th>
+    <th style="width:280px;" class="col-stack">
+      <h3 style="color: #333333; text-align: left; font-family: 'sky_textmedium','Sky Text',Arial,sans-serif; font-size: 21px; line-height: 24px; margin: 0 0 8px 0;" class="mobilehide">
+        <b>Visit your nearest store</b>
+      </h3>
+      <p style="color: #333333; text-align: left; font-family: 'sky_textregular','Sky Text',Arial,sans-serif; font-size: 21px; line-height: 24px; margin: 0 0 24px 0; font-weight: normal" class="text-md text-center mx90">
+        Use our locator to find a Sky store near you or browse our list of&nbsp;stores.
+      </p>
+      <!-- CTA -->
+      <div>
+      <a href="https://www.sky.com/shop/store-locator?qp=TW7%205QD" target="_blank" style="background-color:#000ff5; color:#ffffff; width:280px; display:inline-block; line-height:44px; text-align:center; text-decoration:none; border-radius:4px; font-size:18px; font-family:'Sky Text',Arial,sans-serif" class="cta">
+        <b>Locate your nearest store</b>
+      </a>
+      </div>
+    </th>
+  </tr>
+</table>`
+
+export const SpotlightHelpers = `<%
+function getRT(ratings, options) {
+  if (!ratings) {
+    return '';
+  }
+  var options = options || {};
+
+  var criticIcon = "";
+  var audienceIcon = "";
+  //  Certified Fresh/Verified Hot icons as we can't bet on percentage alone
+  // "rating": {
+  //   "critic": 99,
+  //   "critic_cert_fresh": true,
+  //   "audience": 99,
+  //   "audience_ver_hot": true
+  // }
+
+  if (ratings.critic > 0 && ratings.critic < 60) {
+    criticIcon = "https://res.newsletter.contact.sky/res/img/C3EADA6BF1A47AC312EEC042B7E5DFB5.png"; // rotten
+  } else if (ratings.critic >= 60) {
+    criticIcon = "https://res.newsletter.contact.sky/res/img/FD5C6D44C892BD92BD9750E3E59A7AA3.png"; // fresh
+  }
+
+  if (ratings.critic && ratings.critic_cert_fresh) {
+    criticIcon = "https://res.newsletter.contact.sky/res/img/7FBB7304ED68005B3021B88EF9CB7793.png"; // certified fresh
+  }
+
+  if (ratings.audience > 0 && ratings.audience < 60) {
+    audienceIcon = "https://res.newsletter.contact.sky/res/img/ED079332B41BE14CA3C2A0534438AD63.png"; // stale
+  } else if (ratings.audience >= 60) {
+    audienceIcon = "https://res.newsletter.contact.sky/res/img/55892A3619A63E6B8734E417BA03AC86.png"; // hot
+  }
+
+  if (ratings.audience && ratings.audience_ver_hot) {
+    audienceIcon = "https://res.newsletter.contact.sky/res/img/A2CA5D0A5F09769D335C268762850265.png"; // verified hot
+  }
+
+  var fontSize = options.fontSize || 12;
+  var lineHeight = options.lineHeight || 14;
+  var html = '';
+  html += '<table cellspacing="0" cellpadding="0" border="0" role="presentation" style="font-size:' + fontSize + 'px;line-height:' + lineHeight + 'px; color:#ffffff; font-family:\\'sky_textregular\\',\\'Sky Text\\',Arial,sans-serif;"><tr>';
+
+  if (ratings.critic) {
+  html += '<td style="vertical-align:middle;">';
+  html += '<img src="' + criticIcon + '" width="19" alt="Critic score tomato." border="0" style="vertical-align:middle;" class="icon-rt">';
+  html += '</td>';
+  html += '<td style="vertical-align:middle; padding-left:3px;">' + ratings.critic + '%</td>';
+  }
+
+  if (ratings.critic && ratings.audience) {
+  html += '<td style="width:12px;">&nbsp;</td>';
+  }
+
+  if (ratings.audience) {
+  html += '<td style="vertical-align:middle; padding-right:2px;">';
+  html += '<img src="' + audienceIcon + '" width="19" alt="Audience score popcorn." border="0" style="vertical-align:middle;" class="icon-rt">';
+  html += '</td>';
+  html += '<td style="vertical-align:middle;">' + ratings.audience + '%</td>';
+  }
+
+  html += '</tr></table>';
+  return html;
+};
+
+var channel_logos = {
+  "sky_arts": {
+    src: "https://res.newsletter.contact.sky/res/img/344DF5C57846CAD83F5D9BE435DA7902.png",
+    alt: "Sky Arts"
+  },
+  "sky_atlantic": {
+    src: "https://res.newsletter.contact.sky/res/img/490985B25B53D859A4412C1C03F6C182.png",
+    alt: "Sky Atlantic"
+  },
+  "sky_comedy": {
+    src: "https://res.newsletter.contact.sky/res/img/FDF96D99FF673788B1A876F7560DE54F.png",
+    alt: "Sky Comedy"
+  },
+  "sky_crime": {
+    src: "https://res.newsletter.contact.sky/res/img/03BB3660A56D8216C9744BC18830D9BC.png",
+    alt: "Sky Crime"
+  },
+  "sky_docs": {
+    src: "https://res.newsletter.contact.sky/res/img/AE0D8B5557788128D706E7C322B63BAD.png",
+    alt: "Sky Documentaries"
+  },
+  "sky_history": {
+    src: "https://res.newsletter.contact.sky/res/img/A12DFD825084F3ECDF8D7FD81E1FCE32.png",
+    alt: "Sky History"
+  },
+  "sky_nature": {
+    src: "https://res.newsletter.contact.sky/res/img/C23A3CA7427691AADF1A75958CE093DC.png",
+    alt: "Sky Nature"
+  },
+  "sky_one": {
+    src: "https://res.newsletter.contact.sky/res/img/B9A3D2E14CFAF4BA497B1B025AD5A8FA.png",
+    alt: "Sky One"
+  },
+  "sky_witness": {
+    src: "https://res.newsletter.contact.sky/res/img/C90256A5C639589A249CB47787396F89.png",
+    alt: "Sky Witness"
+  },
+  "sky_scifi": {
+    src: "https://res.newsletter.contact.sky/res/img/C53EAF3350B3042C45720BE22ECA6EC1.png",
+    alt: "Sky Sci-Fi"
+  },
+  "sky_kids": {
+    src: "https://res.newsletter.contact.sky/res/img/1AA266143B51713D8764756E9B462FDD.png",
+    alt: "Sky Kids"
+  },
+  "sky_cinema": {
+    src: "https://res.newsletter.contact.sky/res/img/E9E2E2E919635F08D9175DF9ADECCCDF.png",
+    alt: "Sky Cinema",
+    lozenge: true
+  },
+  "netflix": {
+    src: "https://res.newsletter.contact.sky/res/img/86B627B3656E59CE4F11A828EBB57D6E.png",
+    alt: "Netflix"
+  },
+  "hbo_max": {
+    src: "https://res.newsletter.contact.sky/res/img/25C6144D8C774ABBB7862605618E73CD.png",
+    alt: "HBO Max"
+  },
+  "disney": {
+    src: "https://res.newsletter.contact.sky/res/img/FD805D01EA25066AA698107E668E8FD8.png",
+    alt: "Disney+"
+  },
+  "hayu": {
+    src: "https://res.newsletter.contact.sky/res/img/F67BBFFB87F2B832EF7B821BFCFC0627.png",
+    alt: "Hayu"
+  },
+  "sports": {
+    src: "https://res.newsletter.contact.sky/res/img/6FC397BB95BA5F33C39A74D9B3BD23BB.png",
+    alt: "Sky Sports",
+    lozenge: true
+  },
+  "sports_cricket": {
+    src: "https://res.newsletter.contact.sky/res/img/61D97B0658FABB2F500067AD74675421.png",
+    alt: "Sky Sports Cricket",
+    lozenge: true
+  },
+  "sports_f1": {
+    src: "https://res.newsletter.contact.sky/res/img/F52771D159FA51FC21495CA14D1CCDAD.png",
+    alt: "Sky Sports F1",
+    lozenge: true
+  },
+  "sports_football": {
+    src: "https://res.newsletter.contact.sky/res/img/01CF6934B6AD4357CF6732931A21A932.png",
+    alt: "Sky Sports Football",
+    lozenge: true
+  },
+  "sports_golf": {
+    src: "https://res.newsletter.contact.sky/res/img/8259437610C255FAAC42DCF097B4523F.png",
+    alt: "Sky Sports Golf",
+    lozenge: true
+  },
+  "sports_mainevent": {
+    src: "https://res.newsletter.contact.sky/res/img/52A54C50B8DAA2FE5472864B62CFB5F0.png",
+    alt: "Sky Sports Main Event",
+    lozenge: true
+  },
+  "sports_nfl": {
+    src: "https://res.newsletter.contact.sky/res/img/2F6DC886C6BE32905C78E164A3011483.png",
+    alt: "Sky Sports NFL",
+    lozenge: true
+  },
+  "sports_plus": {
+    src: "https://res.newsletter.contact.sky/res/img/45BC3D46F110437724CA131EC09DF44B.png",
+    alt: "Sky Sports+",
+    lozenge: true
+  },
+  "sports_pl": {
+    src: "https://res.newsletter.contact.sky/res/img/94C0FB357ADF3606D29F69AC441D1555.png",
+    alt: "Sky Sports Premier League",
+    lozenge: true
+  },
+  "sports_tennis": {
+    src: "https://res.newsletter.contact.sky/res/img/AA44FF9B98B84E83B72BD4F91FF245B4.png",
+    alt: "Sky Sports Tennis",
+    lozenge: true
+  },
+};
+
+function getChannelLogo(channel) {
+  if (channel_logos[channel]) {
+    var height = channel_logos[channel].lozenge ? 20 : 28;
+    return '<img src="' + channel_logos[channel].src + '" alt="' + channel_logos[channel].alt + '" height="' + height + '" border="0" style="vertical-align:middle;" class="content-logo">';
+  } else {
+    return '';
+  }
+};
 %>`
