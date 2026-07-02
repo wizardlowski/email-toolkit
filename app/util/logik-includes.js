@@ -544,3 +544,18 @@ function getChannelLogo(channel) {
   }
 };
 %>`
+
+// Registry mapping ACC include view names to content.
+// New include = one entry here. Footer_*START and MirrorPageUrl have
+// special matching in app/util/logik-expand.ts.
+export const includeRegistry = {
+  Footer_END: footerEnd,
+  STV_Personalised_Hero_Grid_Master: gridSTV,
+  CinemaWeekly_Personalised_Hero_Grid: gridCIN,
+  CinemaWeekly_MoviesFromData: cinWeeklyMovies,
+  fixDecimal,
+  forwardXDays,
+  formatPricePoint,
+  storeLocator,
+  SpotlightHelpers,
+}
