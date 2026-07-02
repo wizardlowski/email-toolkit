@@ -8,11 +8,8 @@ useHead({
   title: 'Logik'
 })
 
-const input = ref('')
-function editorUpdate(text: string) {
-  input.value = text
-}
-const targetDataInput = ref('{}')
+const input = useLocalStorage('logik-editor', '')
+const targetDataInput = useLocalStorage('logik-target-data', '{}')
 
 const getTargetData = (html: string) => {
   const targetDataRegex = /(targetData\.[a-zA-Z0-9_-]+)/gm;
@@ -24,7 +21,7 @@ const getTargetData = (html: string) => {
   targetDataInput.value = JSON.stringify(flags, null, 1)
 }
 
-const region = ref('GBP')
+const region = useLocalStorage('logik-region', 'GBP')
 function toggleRegion() {
   region.value = region.value === "GBP" ? "EUR" : "GBP"
   updateOutput()
@@ -106,6 +103,10 @@ async function updateOutput() {
 
 watch(input, updateOutput)
 
+onMounted(() => {
+  if (input.value) nextTick(updateOutput)
+})
+
 function clearAll() {
   input.value = ''
   output.value = ''
@@ -125,7 +126,7 @@ function clearAll() {
       />
       
       <LazyClientOnly>
-        <Editor @update="editorUpdate" @clear="clearAll"/>
+        <Editor v-model="input" @clear="clearAll"/>
       </LazyClientOnly>
 
       <UButton v-if="input" class="absolute bottom-20 right-8" @click="toggleRegion">

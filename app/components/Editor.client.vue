@@ -1,40 +1,35 @@
 <script setup lang="ts">
-import { VAceEditor } from 'vue3-ace-editor';
-import 'ace-builds/src-noconflict/mode-ejs';
-import 'ace-builds/src-noconflict/theme-monokai';
+import type { editor } from 'monaco-editor'
+import { registerEjsLanguage } from '~/util/monaco-ejs'
 
-const input = ref('')
+const model = defineModel<string>({ default: '' })
+const emits = defineEmits(['clear'])
 
-function editorInit(editor: any) {
-  // needed to init editor component
-  return;
+const monaco = await useMonaco()
+registerEjsLanguage(monaco)
+
+const editorOptions: editor.IStandaloneEditorConstructionOptions = {
+  wordWrap: 'on',
+  minimap: { enabled: false },
+  stickyScroll: { enabled: false },
+  theme: 'vs-dark',
+  automaticLayout: true
 }
-
-const emits = defineEmits(['update', 'clear'])
-function inputUpdate() {
-  emits('update', input.value)
-}
-
-watch(input, inputUpdate)
 
 function clear() {
-  input.value = ''
+  model.value = ''
   emits('clear')
 }
 </script>
 <template>
-  <ClientOnly>
-    <v-ace-editor
-    v-model:value="input"
-    @init="editorInit"
-    @change="inputUpdate"
+  <MonacoEditor
+    v-model="model"
     lang="ejs"
-    theme="monokai"
-    wrap
-    style="height:100%" />
-  </ClientOnly>
+    :options="editorOptions"
+    class="flex-1 min-h-0"
+  />
 
-  <UButton v-if="input" class="absolute bottom-8 right-8" @click="clear">
+  <UButton v-if="model" class="absolute bottom-8 right-8" @click="clear">
     Clear
   </UButton>
 </template>
