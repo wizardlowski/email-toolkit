@@ -5,6 +5,12 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  vite: {
+    optimizeDeps: {
+      include: ['gifsicle-wasm-browser']
+    }
+  },
+
   compatibilityDate: '2024-11-15',
 
   nitro: {
@@ -19,5 +25,6 @@ export default defineNuxtConfig({
     '/tinyimg': { ssr: false },
     '/vip-upload-gen': { ssr: false },
     '/get-store-movies': { ssr: false },
+    '/gif-fix': { ssr: false },
   }
 })
