@@ -148,6 +148,7 @@ function removeImage(imageId: string) {
     </div>
 
     <FileDropZone 
+      v-if="images.length"
       accept="image/*" 
       :multiple="true"
       icon="image"
@@ -209,7 +210,7 @@ function removeImage(imageId: string) {
             <UButton 
               @click="removeImage(image.id)"
               size="sm"
-              color="red"
+              color="warning"
               variant="ghost"
             >
               Remove

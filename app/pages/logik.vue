@@ -103,7 +103,7 @@ function classifyEjsError(e: Error, lineMap: LineOrigin[]): RenderError {
     const origin = lineMap[expandedLine - 1]
     const parts = e.message.split('\n\n')
     const message = parts.slice(1).join('\n\n').trim() || e.message
-    const ejsContext = parts[0].split('\n').slice(1).join('\n')
+    const ejsContext = parts[0]?.split('\n').slice(1).join('\n')
 
     return {
       type: 'runtime',
@@ -136,7 +136,7 @@ function classifyEjsError(e: Error, lineMap: LineOrigin[]): RenderError {
     return {
       type: 'syntax',
       title: 'Syntax error',
-      message: e.message.split('\n')[0].replace(/ while compiling ejs$/, '')
+      message: (e.message.split('\n')[0] ?? e.message).replace(/ while compiling ejs$/, '')
         + ' — check your <% %> blocks'
     }
   }
@@ -165,7 +165,7 @@ function updateOutput() {
 
   const { html, lineMap, unresolved } = expanded.value
   if (unresolved.length) {
-    const u = unresolved[0]
+    const u = unresolved[0]!
     renderError.value = {
       type: 'include',
       title: 'Unknown include',

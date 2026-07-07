@@ -312,18 +312,15 @@ onUnmounted(() => {
           <div class="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
             {{ formatFileSize(resultFile.size) }} · {{ resultFrames.length }} frames · {{ resultDuration }}
           </div>
+          <div class="text-sm text-neutral-500 dark:text-neutral-400 my-4">
+            {{ formatFileSize(sourceFile.size) }} → {{ formatFileSize(resultFile.size) }}
+            <span v-if="sizeRatio > 0" class="text-green-600 font-medium">({{ sizeRatio }}% smaller)</span>
+            <span v-else>(no size reduction)</span>
+          </div>
+          <UButton color="primary" @click="downloadResult">
+            Download
+          </UButton>
         </div>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <div class="text-sm text-neutral-500 dark:text-neutral-400">
-          {{ formatFileSize(sourceFile.size) }} → {{ formatFileSize(resultFile.size) }}
-          <span v-if="sizeRatio > 0" class="text-green-600 font-medium">({{ sizeRatio }}% smaller)</span>
-          <span v-else>(no size reduction)</span>
-        </div>
-        <UButton color="primary" @click="downloadResult">
-          Download
-        </UButton>
       </div>
     </UCard>
   </div>

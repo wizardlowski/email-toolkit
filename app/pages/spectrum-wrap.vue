@@ -180,7 +180,7 @@ function clipboardCopy () {
 </script>
 
 <template>
-  <UContainer class="mt-8 space-y-6 text-center !px-0" :style="{ width: containerSizeMobile ? '375px' : '600px' }">
+  <UContainer class="mt-8 space-y-6 text-center px-0!" :style="{ width: containerSizeMobile ? '375px' : '600px' }">
     <UFormField label="Text:">
       <UTextarea 
         v-model="input" 
@@ -221,7 +221,7 @@ function clipboardCopy () {
         <UInput 
           v-model="fontValue"
           placeholder="Custom"
-          class="rounded !w-20 h-full shadow-none ring-primary-500"
+          class="rounded w-20! h-full shadow-none ring-primary-500"
           type="number" 
           min="1"
         />
@@ -242,7 +242,7 @@ function clipboardCopy () {
       </div>
     </UFormField>
 
-    <UContainer class="bg-white dark:bg-neutral-700 shadow rounded py-4 mx-auto sm:!pl-[5%] sm:!pr-[5%]">
+    <UContainer class="bg-white dark:bg-neutral-700 shadow rounded py-4 mx-auto sm:pl-[5%]! sm:pr-[5%]!">
       <h1 v-html="output" class="leading-tight" :class="{ 'font-bold': toggleBold, 'font-arial': useArialFont }" :style="fontSize">
         
       </h1>

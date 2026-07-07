@@ -39,6 +39,10 @@ function handleImageLoad(event: Event) {
   target.style.display = 'block'
 }
 
+function handleImagesModalDisplay() {
+    showAddImagesModal.value = !showAddImagesModal.value
+}
+
 async function handleDropZoneFiles(files: File[]) {
   if (files.length === 0) {
     return
@@ -361,7 +365,7 @@ const gridClass = computed(() => {
         <UButton @click="collapseEmpty" :disabled="!csvFile || csvData.length === 0">
           Collapse Empty
         </UButton>
-        <UButton @click="showAddImagesModal = true" :disabled="!csvFile || csvData.length === 0">
+        <UButton @click="handleImagesModalDisplay" :disabled="!csvFile || csvData.length === 0">
           Add Images
         </UButton>
         <UButton @click="downloadCSV" :disabled="!csvFile || csvData.length === 0" color="primary">
@@ -391,7 +395,7 @@ const gridClass = computed(() => {
         <!-- Label -->
         <div class="flex items-center cursor-pointer select-none" @click="toggleRow(index)">
           <UIcon :name="collapsedRows.has(index) ? 'i-lucide-chevron-right' : 'i-lucide-chevron-down'" class="mr-2 shrink-0" />
-          <h3 class="text-lg font-bold text-neutral-900 dark:text-white break-words">
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-white wrap-break-word">
             {{ row.label }}
           </h3>
         </div>
@@ -436,7 +440,7 @@ const gridClass = computed(() => {
             class="w-full mb-4"
           />
           <div class="flex justify-end gap-2">
-            <UButton variant="ghost" @click="showAddImagesModal = false">Cancel</UButton>
+            <UButton variant="ghost" @click="handleImagesModalDisplay">Cancel</UButton>
             <UButton color="primary" @click="applyAddImages" :disabled="!addImagesPasteContent.trim()">Submit</UButton>
           </div>
         </div>

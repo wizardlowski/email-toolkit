@@ -94,7 +94,7 @@ useHead({
 
 <template>
   <div class="text-xl p-4 min-h-full grid gap-4 grid-cols-2 grid-rows-[40px_50px_auto]">
-    <div class="col-[1_/_-1] relative self-center">
+    <div class="col-span-full relative self-center">
       <div class="flex items-center justify-center gap-8 uppercase">
         <UFormField label="Colour">
           <UInput v-model.trim="colourInput" class="w-32" />

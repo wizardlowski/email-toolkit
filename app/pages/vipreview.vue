@@ -362,7 +362,7 @@ async function takeScreenshot() {
         <label class="block text-xs font-bold mb-2">Region:</label>
         <div class="flex gap-1">
           <UButton
-            @click="selectedIndex = 0"
+            @click="() => {selectedIndex = 0}"
             :variant="selectedIndex === 0 ? 'solid' : 'ghost'"
             :color="selectedIndex === 0 ? 'primary' : 'neutral'"
             class="flex-1"
@@ -371,7 +371,7 @@ async function takeScreenshot() {
             UK
           </UButton>
           <UButton
-            @click="selectedIndex = 1"
+            @click="() => {selectedIndex = 1}"
             :variant="selectedIndex === 1 ? 'solid' : 'ghost'"
             :color="selectedIndex === 1 ? 'primary' : 'neutral'"
             class="flex-1"
@@ -687,11 +687,11 @@ async function takeScreenshot() {
         <b>{{ currentData.Signoff_Copy }}</b>
       </p>
 
-      <div class="h-[6px] gradient"></div>
+      <div class="h-1.5 gradient"></div>
 
       <div>
         <img src="https://res.newsletter.contact.sky/res/img/0990D9D2426E04156EA51E87F3C7235F.png" alt="Sky" class="w-[74px] h-[45px] my-10 mx-auto" />
-        <p class="text-[10px] leading-[14px] mb-4 mx-7 font-arial">
+        <p class="text-[10px] leading-3.5 mb-4 mx-7 font-arial">
           <a href="#" class="underline">Privacy Policy</a> | <a href="#" class="underline">Terms and Conditions</a> | <a href="#" class="underline">Contact us</a> | <a href="#" class="underline">My Account</a>
           <br><br>
           You were sent this email as part of your Sky VIP membership.<br>
