@@ -148,7 +148,7 @@ function removeImage(imageId: string) {
     </div>
 
     <FileDropZone 
-      v-if="images.length"
+      v-if="!images.length"
       accept="image/*" 
       :multiple="true"
       icon="image"
