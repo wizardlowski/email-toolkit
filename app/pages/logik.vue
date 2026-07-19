@@ -210,9 +210,15 @@ function clearAll() {
         :ui="{ base: 'rounded-none border-r border-b border-black dark:border-neutral-100' }"
       />
 
-      <LazyClientOnly>
-        <Editor v-model="input" :marker="editorMarker" @clear="clearAll"/>
-      </LazyClientOnly>
+      <ClientOnly>
+        <Suspense>
+          <Editor v-model="input" :marker="editorMarker" @clear="clearAll"/>
+  
+          <template #fallback>
+            Loading editor pane...
+          </template>
+        </Suspense>
+      </ClientOnly>
 
       <UButton v-if="input" class="absolute bottom-20 right-8" @click="toggleRegion">
         {{ regionBtnText }}
