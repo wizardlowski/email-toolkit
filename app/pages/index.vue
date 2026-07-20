@@ -46,7 +46,7 @@
 </script>
 
 <template>
-  <div class="p-4 flex flex-col gap-8">
+  <div class="p-4 flex flex-col gap-8 mx-auto">
 
     <section v-for="group in groups" :key="group.title">
       <h2 class="text-lg mb-3">{{ group.title }}</h2>
