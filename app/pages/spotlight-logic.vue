@@ -41,13 +41,36 @@ const inputOrders = ref('')
 const inputsAdded = ref(false)
 const outputLogic = ref('')
 
+function isAddon(show: Show): boolean {
+    return show.channel.includes('cinema') || show.channel.includes('sport') || show.channel.includes('kids')
+}
+
+function addonImage(show: Show): string {
+    if (show.channel.includes('cinema')) return 'images/spot-cin.jpg'
+    if (show.channel.includes('sport')) return 'images/spot-spt.jpg'
+    if (show.channel.includes('kids')) return 'images/spot-kids.jpg'
+    return ''
+}
+
 function convert() {
     inputsAdded.value = true
-    const shows = convertShowRowsToJson(inputShows.value, selectedPodType.value);;
+    const allShows = convertShowRowsToJson(inputShows.value, selectedPodType.value);
     const orders = convertOrderRowsToJson(inputOrders.value);
-    const ordersAndShows = compileShowOrders(shows, orders, selectedPodType.value);
 
-    outputLogic.value = compileWithLogic(shows, ordersAndShows, selectedPodType.value);
+    // Spotlight only: split cinema/sport/kids addons out from TV shows.
+    let shows = allShows
+    let addons: Show[] = []
+    if (selectedPodType.value === 'spotlight') {
+        addons = allShows.filter(isAddon)
+        shows = allShows.filter(show => !isAddon(show))
+
+        // set image paths
+        shows.forEach((show, i) => { show.image = `images/spot-tv-${i + 1}.jpg` })
+        addons.forEach(show => { show.image = addonImage(show) })
+    }
+
+    const ordersAndShows = compileShowOrders(shows, orders, selectedPodType.value);
+    outputLogic.value = compileWithLogic(shows, ordersAndShows, addons, selectedPodType.value);
 }
 
 function convertShowRowsToJson(rows: string, pod: string): Show[] {
@@ -64,8 +87,8 @@ function convertShowRowsToJson(rows: string, pod: string): Show[] {
     parsedRows.forEach((row, index) => {
         let [title, channel, extraText, tomScore = "", tomRating = "", popcornScore = "", popcornRating = "", copyright = "" ] = row;
 
-        title = title?.replace(/\n/g, ' ')
-        extraText = extraText?.replace(/\n\n/g, '\n')
+        title = title?.trim().replace(/\n/g, ' ')
+        extraText = extraText?.trim().replace(/\n\n/g, '\n')
         extraText = extraText?.replace(/\n/g, '<br>')
 
         tomScore = tomScore?.replace(/N\/A/g, '')
@@ -88,15 +111,20 @@ function convertShowRowsToJson(rows: string, pod: string): Show[] {
             rating.audience_ver_hot = true;
         }
 
-        let channelName = channel?.replaceAll(" ", "_").toLowerCase() || '';
+        let channelName = channel?.trim().replaceAll(" ", "_").toLowerCase() || '';
         if (channelName.includes("sports")) {
             channelName = channelName.replace("sky_", "");
         }
+        if (channelName.includes("disney")) {
+            channelName = "disney"
+        }
+
+        const imagePath = pod === "top5" ? `images/Top-${index + 1}.jpg` : '';
 
         let showObject: Show = {
             title: title ?? '',
             channel: channelName,
-            image: `images/Top-${index + 1}.jpg`,
+            image: imagePath,
             alt: title ?? '',
             ...(pod === 'top5' ? { tx: extraText ?? '' } : { description: extraText ?? '' }),
             copyright: copyright ? copyright : '',
@@ -127,11 +155,12 @@ function convertOrderRowsToJson(rows: string): string[][] {
     return orderObjects;
 }
 
-function compileShowOrders(shows: Show[], orders: string[][], pod: string): OrderRow[] {
-    const showTitles = shows.map(show => show.title.toLowerCase());
+function compileShowOrders(showsData: Show[], orders: string[][], pod: string): OrderRow[] {
+    const showTitles = showsData.map(show => show.title.toLowerCase());
 
-    let orderArray: OrderRow[] = [];
-    let podType = pod === 'top5' ? 'top_shows' : 'spotlight_shows';
+    const orderArray: OrderRow[] = [];
+    const podType = pod === 'top5' ? 'top_shows' : 'spotlight_shows';
+
     orders.forEach(order => {
         const orderRow: OrderRow = {
             comment: '// ',
@@ -149,7 +178,7 @@ function compileShowOrders(shows: Show[], orders: string[][], pod: string): Orde
     return orderArray;
 }
 
-function compileWithLogic(shows: Show[], showOrders: OrderRow[], pod: string): string {
+function compileWithLogic(showsData: Show[], showOrders: OrderRow[], addons: Show[], pod: string): string {
     const conditions = [
     'isSOIP_ETV',
     'isSOIP_UTV',
@@ -160,19 +189,8 @@ function compileWithLogic(shows: Show[], showOrders: OrderRow[], pod: string): s
 
     let output = [];
     let podType = pod === 'top5' ? 'top' : 'spotlight';
-    let spotlight_addons: Show[] = [];
 
-    if (podType === 'spotlight') {
-        // filter out and remove cinema/sport/kids - base it on channel name
-        spotlight_addons = shows.filter(show => show.channel.includes('cinema') || show.channel.includes('sport') || show.channel.includes('kids'))
-
-        spotlight_addons.forEach(show => {
-            const ind = shows.indexOf(show)
-            shows.splice(ind, 1)
-        })
-    }
-
-    output.push(`var ${podType}_shows = ` + JSON.stringify(shows, null, 2));
+    output.push(`var ${podType}_shows = ` + JSON.stringify(showsData, null, 2));
     output.push(`var ${podType} = [];`);
     
     conditions.forEach((condition, index) => {
@@ -184,9 +202,9 @@ function compileWithLogic(shows: Show[], showOrders: OrderRow[], pod: string): s
 
     if (podType === 'spotlight') {
         // add cinema/sport/kids here - logic is in the template already
-        const cinema = spotlight_addons.filter(show => show.channel.includes('cinema'))[0]
-        const sports = spotlight_addons.filter(show => show.channel.includes('sports'))[0]
-        const kids = spotlight_addons.filter(show => show.channel.includes('kids'))[0]
+        const cinema = addons.filter(show => show.channel.includes('cinema'))[0]
+        const sports = addons.filter(show => show.channel.includes('sports'))[0]
+        const kids = addons.filter(show => show.channel.includes('kids'))[0]
         output.push('\n// Cinema / Sport / Kids options');
         output.push(`var spotlight_cinema = ` + JSON.stringify(cinema, null, 2));
         output.push(`var spotlight_sports = ` + JSON.stringify(sports, null, 2));
@@ -229,6 +247,7 @@ function reset() {
 
     <div v-else class="h-full">
         <div v-if="!inputsAdded" class="grid gap-4 grid-cols-2 items-start p-4">
+            <h2 class="col-span-full text-center text-2xl">{{ selectedPodType === 'top5' ? 'Top 5' : 'Spotlight'  }}</h2>
             <UTextarea v-model="inputShows" :rows="14" :ui="{ base: 'resize-none' }" placeholder="Add shows here" autofocus />
             <UTextarea v-model="inputOrders" :rows="14" :ui="{ base: 'resize-none' }" placeholder="Add content orders here" />
             <div class="col-span-full text-center">
