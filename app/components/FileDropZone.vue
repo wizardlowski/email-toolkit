@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { filesFromDataTransfer, filesFromInput, type DroppedFile } from '~/util/folder-drop'
+
 interface Props {
   accept?: string
   multiple?: boolean
   disabled?: boolean
+  // Accept a whole folder and emit paths alongside the files
+  directory?: boolean
   icon?: 'image' | 'document' | 'email'
   title?: string
   subtitle?: string
@@ -12,12 +16,14 @@ interface Props {
 interface Emits {
   (e: 'drop', files: File[]): void
   (e: 'input', files: File[]): void
+  (e: 'files', files: DroppedFile[]): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
   accept: '*',
   multiple: false,
   disabled: false,
+  directory: false,
   icon: 'document',
   title: 'Drag and drop files here',
   subtitle: 'or',
@@ -50,7 +56,14 @@ async function handleDrop(e: DragEvent) {
   if (props.disabled) return
   e.preventDefault()
   isDragOver.value = false
-  
+
+  if (props.directory) {
+    if (!e.dataTransfer) return
+    const dropped = await filesFromDataTransfer(e.dataTransfer)
+    if (dropped.length) emit('files', dropped)
+    return
+  }
+
   const files = Array.from(e.dataTransfer?.files || [])
   if (files.length === 0) return
 
@@ -60,8 +73,15 @@ async function handleDrop(e: DragEvent) {
 async function handleFileInput(e: Event) {
   if (props.disabled) return
   const target = e.target as HTMLInputElement
+
+  if (props.directory) {
+    const dropped = target.files ? filesFromInput(target.files) : []
+    if (dropped.length) emit('files', dropped)
+    return
+  }
+
   const files = Array.from(target.files || [])
-  
+
   if (files.length === 0) return
 
   emit('input', files)
@@ -99,11 +119,12 @@ const iconPaths = {
       <UButton as="span" :disabled="disabled">
         {{ buttonText }}
       </UButton>
-      <input 
+      <input
         :id="fileInputId"
-        type="file" 
-        :accept="accept"
-        :multiple="multiple"
+        type="file"
+        :accept="directory ? undefined : accept"
+        :multiple="multiple || directory"
+        :webkitdirectory="directory || undefined"
         :disabled="disabled"
         class="hidden"
         @change="handleFileInput"

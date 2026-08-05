@@ -9,6 +9,7 @@
       tools: [
         { name: 'Logik', to: '/logik', desc: 'Template logic preview and testing' },
         { name: 'Spotlight Logic Gen', to: '/spotlight-logic', desc: 'Build content objects and logic' },
+        { name: 'Spotlight Preview', to: '/spotlight-preview', desc: 'Preview Spotlight content variants' },
       ],
     },
     {

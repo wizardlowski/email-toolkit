@@ -22,6 +22,7 @@ export default defineNuxtConfig({
     '/legaleez': { prerender: true },
     '/text-compare': { prerender: true },
     '/logik': { ssr: false },
+    '/spotlight-preview': { ssr: false },
     '/tinyimg': { ssr: false },
     '/vip-upload-gen': { ssr: false },
     '/get-store-movies': { ssr: false },
