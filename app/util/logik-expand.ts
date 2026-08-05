@@ -16,18 +16,28 @@ export interface ExpandResult {
   unresolved: UnresolvedInclude[]
 }
 
+export interface ExpandOptions {
+  // Stand in for includes that aren't in the registry instead of reporting them
+  // as unresolved. Used by the Spotlight preview, which only cares about content.
+  onUnknownInclude?: (view: string) => string
+}
+
 const includeDirective = /<%@\s*include\s+view='([\w-]+)'\s*%>/g
 const anyAccDirective = /<%@.*?%>/
 
-function resolveInclude(view: string): string | null {
+function resolveInclude(view: string, opts?: ExpandOptions): string | null {
   if (view === 'MirrorPageUrl') return 'https://www.sky.com/'
   if (/^Footer_\w*START$/.test(view)) return footerStart
-  return (includeRegistry as Record<string, string>)[view] ?? null
+
+  const registered = (includeRegistry as Record<string, string>)[view]
+  if (registered !== undefined) return registered
+
+  return opts?.onUnknownInclude?.(view) ?? null
 }
 
 // Expands ACC include directives line by line so every line of the
 // expanded template can be traced back to the editor line it came from.
-export function expandTemplate(input: string): ExpandResult {
+export function expandTemplate(input: string, opts?: ExpandOptions): ExpandResult {
   const outLines: string[] = []
   const lineMap: LineOrigin[] = []
   const unresolved: UnresolvedInclude[] = []
@@ -36,8 +46,8 @@ export function expandTemplate(input: string): ExpandResult {
     const editorLine = i + 1
     let expandedInclude: string | undefined
 
-    const replaced = line.replace(includeDirective, (match, view: string) => {
-      const content = resolveInclude(view)
+    let replaced = line.replace(includeDirective, (match, view: string) => {
+      const content = resolveInclude(view, opts)
       if (content === null) {
         unresolved.push({ view, editorLine })
         return match
@@ -47,8 +57,12 @@ export function expandTemplate(input: string): ExpandResult {
     })
 
     const leftover = replaced.match(anyAccDirective)
-    if (leftover && !unresolved.some(u => u.editorLine === editorLine)) {
-      unresolved.push({ view: leftover[0], editorLine })
+    if (leftover) {
+      if (opts?.onUnknownInclude) {
+        replaced = replaced.replace(anyAccDirective, opts.onUnknownInclude(leftover[0]))
+      } else if (!unresolved.some(u => u.editorLine === editorLine)) {
+        unresolved.push({ view: leftover[0], editorLine })
+      }
     }
 
     for (const outLine of replaced.split('\n')) {
