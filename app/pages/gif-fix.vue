@@ -10,6 +10,9 @@ definePageMeta({
 interface FrameInfo {
   index: number
   delayCs: number
+  disposal: number
+  fullCanvas: boolean
+  localPalette: boolean
 }
 
 const sourceFile = ref<File | null>(null)
@@ -85,18 +88,21 @@ async function hasGifMagicBytes(file: File): Promise<boolean> {
   return header === 'GIF87a' || header === 'GIF89a'
 }
 
-// walk GIF block structure to collect per-frame delays (centiseconds)
+// walk GIF block structure to collect per-frame delays (centiseconds) and compositing info
 async function parseFrameInfo(file: File | Blob): Promise<FrameInfo[]> {
   const bytes = new Uint8Array(await file.arrayBuffer())
   const view = new DataView(bytes.buffer)
   let pos = 6 // past GIF87a/GIF89a header
 
+  const screenWidth = view.getUint16(pos, true)
+  const screenHeight = view.getUint16(pos + 2, true)
   const screenPacked = bytes[pos + 4]!
   pos += 7
   if (screenPacked & 0x80) pos += 3 * (1 << ((screenPacked & 0x07) + 1)) // global color table
 
   const parsed: FrameInfo[] = []
   let pendingDelay = 0
+  let pendingDisposal = 0
 
   const skipSubBlocks = () => {
     while (pos < bytes.length) {
@@ -114,8 +120,9 @@ async function parseFrameInfo(file: File | Blob): Promise<FrameInfo[]> {
       case 0x21: { // extension
         const label = bytes[pos]!
         pos += 1
-        if (label === 0xf9) { // graphic control extension holds the frame delay
+        if (label === 0xf9) { // graphic control extension holds the frame delay and disposal
           const size = bytes[pos]!
+          pendingDisposal = (bytes[pos + 1]! >> 2) & 0x07
           pendingDelay = view.getUint16(pos + 2, true)
           pos += 1 + size + 1
         } else {
@@ -124,13 +131,25 @@ async function parseFrameInfo(file: File | Blob): Promise<FrameInfo[]> {
         break
       }
       case 0x2c: { // image descriptor = one frame
+        const left = view.getUint16(pos, true)
+        const top = view.getUint16(pos + 2, true)
+        const width = view.getUint16(pos + 4, true)
+        const height = view.getUint16(pos + 6, true)
         const imgPacked = bytes[pos + 8]!
         pos += 9
-        if (imgPacked & 0x80) pos += 3 * (1 << ((imgPacked & 0x07) + 1)) // local color table
+        const localPalette = (imgPacked & 0x80) !== 0
+        if (localPalette) pos += 3 * (1 << ((imgPacked & 0x07) + 1)) // local color table
         pos += 1 // LZW min code size
         skipSubBlocks()
-        parsed.push({ index: parsed.length, delayCs: pendingDelay })
+        parsed.push({
+          index: parsed.length,
+          delayCs: pendingDelay,
+          disposal: pendingDisposal,
+          fullCanvas: left === 0 && top === 0 && width === screenWidth && height === screenHeight,
+          localPalette
+        })
         pendingDelay = 0
+        pendingDisposal = 0
         break
       }
       case 0x3b: // trailer
@@ -145,6 +164,30 @@ async function parseFrameInfo(file: File | Blob): Promise<FrameInfo[]> {
   }
 
   return parsed
+}
+
+// Which frames can be removed without wrecking the ones that follow.
+//
+// `-U` (unoptimize) rebuilds every frame as a standalone full-canvas image, which makes
+// any frame safe to drop - but gifsicle only manages that when the whole GIF shares one
+// palette. GIFs exported with a palette per frame (most video-to-GIF conversions) keep
+// their optimized deltas, so a frame that only paints the pixels that changed since the
+// one before it turns into scattered pixels over transparency if its base is removed.
+//
+// For those, track whether the canvas is blank going into each frame - dropping a frame
+// is only safe when the frame after it starts from the same blank canvas either way.
+function removableFrames(list: FrameInfo[]): number[] {
+  if (!list.some(f => f.localPalette)) return list.map(f => f.index)
+
+  const blankBefore = [true]
+  for (const f of list) {
+    const wasBlank = blankBefore[blankBefore.length - 1]!
+    if (f.disposal === 2) blankBefore.push(f.fullCanvas || wasBlank) // restore to background
+    else if (f.disposal === 3) blankBefore.push(wasBlank) // restore to previous
+    else blankBefore.push(false) // frame stays on the canvas
+  }
+
+  return list.filter(f => blankBefore[f.index] && blankBefore[f.index + 1]).map(f => f.index)
 }
 
 let rerunQueued = false
@@ -163,14 +206,18 @@ async function processGif() {
   try {
     const { default: gifsicle } = await import('gifsicle-wasm-browser')
 
-    // drop every 4th frame, then slow remaining frames to 75% speed (delay / 0.75)
-    // so total duration stays close to the original despite 25% fewer frames.
-    // carry spreads centisecond rounding error so duration stays accurate
-    const kept = frames.value.filter(f => (f.index + 1) % 4 !== 0)
+    // drop every 4th removable frame, then stretch the remaining delays so total
+    // duration stays put. carry spreads centisecond rounding error across frames.
+    const removable = removableFrames(frames.value)
+    const dropped = new Set(removable.filter((_, n) => (n + 1) % 4 === 0))
+    const kept = frames.value.filter(f => !dropped.has(f.index))
+    const originalCs = frames.value.reduce((sum, f) => sum + f.delayCs, 0)
+    const keptCs = kept.reduce((sum, f) => sum + f.delayCs, 0)
+    const stretch = keptCs > 0 ? originalCs / keptCs : 1
     let carry = 0
     const selections = kept
       .map(f => {
-        const ideal = f.delayCs / 0.75 + carry
+        const ideal = f.delayCs * stretch + carry
         const delay = Math.max(2, Math.round(ideal)) // browsers clamp delays under 2cs
         carry = ideal - delay
         return `-d${delay} #${f.index}`
