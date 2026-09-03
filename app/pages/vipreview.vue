@@ -38,7 +38,7 @@ const podFieldMappings = [
   },
   {
     showRef: showExperience,
-    fields: ['Experience_Heading', 'Experience_1_Image_URL', 'Experience_2_Image_URL', 'Experience_3_Image_URL', 'Experience_Copy', 'Experience_CTA_URL', 'Experience_CTA_Copy']
+    fields: ['Experience_Heading', 'Experience_1_Image_URL', 'Experience_Copy', 'Experience_CTA_URL', 'Experience_CTA_Copy']
   },
   {
     showRef: showEverydaySavings,
@@ -532,7 +532,7 @@ async function takeScreenshot() {
         type="cols"
         :csvColumns="{
           headingText: 'Experience Heading',
-          imgUrl: 'Experience Image URLs (1, 2, 3)',
+          imgUrl: 'Experience Image URL',
           text: 'Experience Copy',
           ctaUrl: 'Experience CTA URL',
           ctaText: 'Experience CTA Copy'
