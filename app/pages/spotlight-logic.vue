@@ -73,28 +73,37 @@ function convert() {
     outputLogic.value = compileWithLogic(shows, ordersAndShows, addons, selectedPodType.value);
 }
 
+// collapse line breaks/extra whitespace into a single line
+function singleLine(text = ''): string {
+    return text.replace(/\s+/g, ' ').trim()
+}
+
+// multi-line cell -> <br> separated copy
+function toBreaks(text = ''): string {
+    return text.trim().replace(/\n\n/g, '\n').replace(/\n/g, '<br>')
+}
+
 function convertShowRowsToJson(rows: string, pod: string): Show[] {
-    // Sort out line breaks/tabs/quotes and then split based on line break
-    const rowsSingleTab = rows.replace(/\t\t/g, "\t")
-    const parsedRows = Papa.parse<string[]>(rowsSingleTab, {
+    // Sheets have blank spacer columns, so parse raw tabs and map by index
+    const parsedRows = Papa.parse<string[]>(rows, {
         delimiter: '\t',
         skipEmptyLines: true
     }).data
 
     // Format rows into objects
     let showObjects: Show[] = [];
-    
-    parsedRows.forEach((row, index) => {
-        let [title, channel, extraText, tomScore = "", tomRating = "", popcornScore = "", popcornRating = "", copyright = "" ] = row;
 
-        title = title?.trim().replace(/\n/g, ' ')
-        extraText = extraText?.trim().replace(/\n\n/g, '\n')
-        extraText = extraText?.replace(/\n/g, '<br>')
+    parsedRows.forEach((rawRow, index) => {
+        const row = rawRow.map(cell => /^n\/a$/i.test(cell.trim()) ? '' : cell)
 
-        tomScore = tomScore?.replace(/N\/A/g, '')
-        tomRating = tomRating?.replace(/N\/A/g, '')
-        popcornScore = popcornScore?.replace(/N\/A/g, '')
-        popcornRating = popcornRating?.replace(/N\/A/g, '')
+        // Spotlight: title | spacer | channel | spacer | body | spacer | tx | tomScore | tomRating | popcornScore | popcornRating | copyright
+        // Top 5:     title | spacer | channel | spacer | tx   | spacer | blank | (same as above)
+        let [title, , channel, , extraText, , tx = "", tomScore = "", tomRating = "", popcornScore = "", popcornRating = "", copyright = ""] = row;
+
+        title = singleLine(title)
+        extraText = toBreaks(extraText)
+        tx = toBreaks(tx)
+        copyright = copyright.trim()
 
         const rating: Rating = {};
 
@@ -122,12 +131,12 @@ function convertShowRowsToJson(rows: string, pod: string): Show[] {
         const imagePath = pod === "top5" ? `images/Top-${index + 1}.jpg` : '';
 
         let showObject: Show = {
-            title: title ?? '',
+            title,
             channel: channelName,
             image: imagePath,
-            alt: title ?? '',
-            ...(pod === 'top5' ? { tx: extraText ?? '' } : { description: extraText ?? '' }),
-            copyright: copyright ? copyright : '',
+            alt: title,
+            ...(pod === 'top5' ? { tx: extraText } : { description: extraText, tx }),
+            copyright,
             rating: Object.keys(rating).length ? rating : false
         };
         
@@ -138,19 +147,18 @@ function convertShowRowsToJson(rows: string, pod: string): Show[] {
 }
 
 function convertOrderRowsToJson(rows: string): string[][] {
-    const rowsSingleTab = rows.replace(/\t\t/g, "\t")
-    const parsedRows = Papa.parse<string[]>(rowsSingleTab, {
+    const parsedRows = Papa.parse<string[]>(rows, {
         delimiter: '\t',
         skipEmptyLines: true
     }).data
 
-    const rows2D = parsedRows;
     const firstRow = parsedRows[0];
     if (!firstRow) return [];
 
-    const orderObjects = firstRow.map((_, colIndex) =>
-        rows2D.map(row => row[colIndex] ?? '')
-    );
+    // transpose rows -> columns, dropping blank spacer columns
+    const orderObjects = firstRow
+        .map((_, colIndex) => parsedRows.map(row => row[colIndex] ?? ''))
+        .filter(col => col.some(cell => cell.trim()));
 
     return orderObjects;
 }
@@ -167,8 +175,9 @@ function compileShowOrders(showsData: Show[], orders: string[][], pod: string): 
             order: []
         };
         order.forEach((title, index) => {
-            const showIndex = showTitles.indexOf(title.trim().toLowerCase());
-            orderRow.comment += `${title.trim()}`;
+            const cleanTitle = singleLine(title);
+            const showIndex = showTitles.indexOf(cleanTitle.toLowerCase());
+            orderRow.comment += cleanTitle;
             index < order.length - 1 ? orderRow.comment += ', ' : '';
             orderRow.order.push(`${podType}[${showIndex}]`);
         });
