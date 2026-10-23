@@ -386,7 +386,7 @@ function getRT(ratings, options) {
   var fontSize = options.fontSize || 12;
   var lineHeight = options.lineHeight || 14;
   var html = '';
-  html += '<table cellspacing="0" cellpadding="0" border="0" role="presentation" style="font-size:' + fontSize + 'px;line-height:' + lineHeight + 'px; color:#ffffff; font-family:\'sky_textregular\',\'Sky Text\',Arial,sans-serif;"><tr>';
+  html += '<table cellspacing="0" cellpadding="0" border="0" role="presentation" style="font-size:' + fontSize + 'px;line-height:' + lineHeight + 'px; color:#ffffff; font-family:\\'sky_textregular\\',\\'Sky Text\\',Arial,sans-serif;"><tr>';
 
   if (ratings.critic) {
   html += '<td style="vertical-align:middle;">';
