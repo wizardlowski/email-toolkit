@@ -362,13 +362,6 @@ function getRT(ratings, options) {
 
   var criticIcon = "";
   var audienceIcon = "";
-  //  Certified Fresh/Verified Hot icons as we can't bet on percentage alone
-  // "rating": {
-  //   "critic": 99,
-  //   "critic_cert_fresh": true,
-  //   "audience": 99,
-  //   "audience_ver_hot": true
-  // }
 
   if (ratings.critic > 0 && ratings.critic < 60) {
     criticIcon = "https://res.newsletter.contact.sky/res/img/C3EADA6BF1A47AC312EEC042B7E5DFB5.png"; // rotten
@@ -393,7 +386,7 @@ function getRT(ratings, options) {
   var fontSize = options.fontSize || 12;
   var lineHeight = options.lineHeight || 14;
   var html = '';
-  html += '<table cellspacing="0" cellpadding="0" border="0" role="presentation" style="font-size:' + fontSize + 'px;line-height:' + lineHeight + 'px; color:#ffffff; font-family:\\'sky_textregular\\',\\'Sky Text\\',Arial,sans-serif;"><tr>';
+  html += '<table cellspacing="0" cellpadding="0" border="0" role="presentation" style="font-size:' + fontSize + 'px;line-height:' + lineHeight + 'px; color:#ffffff; font-family:\'sky_textregular\',\'Sky Text\',Arial,sans-serif;"><tr>';
 
   if (ratings.critic) {
   html += '<td style="vertical-align:middle;">';
@@ -433,6 +426,10 @@ var channel_logos = {
   "sky_crime": {
     src: "https://res.newsletter.contact.sky/res/img/03BB3660A56D8216C9744BC18830D9BC.png",
     alt: "Sky Crime"
+  },
+  "sky_documentaries": {
+    src: "https://res.newsletter.contact.sky/res/img/AE0D8B5557788128D706E7C322B63BAD.png",
+    alt: "Sky Documentaries"
   },
   "sky_docs": {
     src: "https://res.newsletter.contact.sky/res/img/AE0D8B5557788128D706E7C322B63BAD.png",
@@ -483,6 +480,10 @@ var channel_logos = {
     src: "https://res.newsletter.contact.sky/res/img/F67BBFFB87F2B832EF7B821BFCFC0627.png",
     alt: "Hayu"
   },
+  "rte_one": {
+    src: "https://res.newsletter.contact.sky/res/sky_ids_mid_t/51c9ece91ec3eb36a64b3030d31bcc3ff416d5bea11d50eb1e8965be482a9ef6.png",
+    alt: "RTE One"
+  },
   "sports": {
     src: "https://res.newsletter.contact.sky/res/img/6FC397BB95BA5F33C39A74D9B3BD23BB.png",
     alt: "Sky Sports",
@@ -531,6 +532,66 @@ var channel_logos = {
   "sports_tennis": {
     src: "https://res.newsletter.contact.sky/res/img/AA44FF9B98B84E83B72BD4F91FF245B4.png",
     alt: "Sky Sports Tennis",
+    lozenge: true
+  },
+  "sports_darts": {
+    src: "https://res.newsletter.contact.sky/res/img/88FB878F68BC5CC604236C308D17A9AA.png",
+    alt: "Sky Sports Darts",
+    lozenge: true
+  },
+  "sports-alt": {
+    src: "https://res.newsletter.contact.sky/res/img/EDC267118E08182E44566D23BAC51E3B.png",
+    alt: "Sky Sports",
+    lozenge: true
+  },
+  "sports_cricket-alt": {
+    src: "https://res.newsletter.contact.sky/res/img/EB678ECA62DB9C34044A9FD59799A994.png",
+    alt: "Sky Sports Cricket",
+    lozenge: true
+  },
+  "sports_f1-alt": {
+    src: "https://res.newsletter.contact.sky/res/img/1FE6F4EFAA338DE0A25D460E9D8659AD.png",
+    alt: "Sky Sports F1",
+    lozenge: true
+  },
+  "sports_football-alt": {
+    src: "https://res.newsletter.contact.sky/res/img/8051A51B23401EC8D338896FB4BEFE24.png",
+    alt: "Sky Sports Football",
+    lozenge: true
+  },
+  "sports_golf-alt": {
+    src: "https://res.newsletter.contact.sky/res/img/201C463F6C99224ACF3CA16FB8C5B3C2.png",
+    alt: "Sky Sports Golf",
+    lozenge: true
+  },
+  "sports_mainevent-alt": {
+    src: "https://res.newsletter.contact.sky/res/img/BFCF1EB1CAB551947744D0347801073E.png",
+    alt: "Sky Sports Main Event",
+    lozenge: true
+  },
+  "sports_nfl-alt": {
+    src: "https://res.newsletter.contact.sky/res/img/F546AC53B5BF5E8C2E5E1C8412E8F92C.png",
+    alt: "Sky Sports NFL",
+    lozenge: true
+  },
+  "sports_plus-alt": {
+    src: "https://res.newsletter.contact.sky/res/img/50E1C6975ABE9B1C9AE84951A4309CE2.png",
+    alt: "Sky Sports+",
+    lozenge: true
+  },
+  "sports_pl-alt": {
+    src: "https://res.newsletter.contact.sky/res/img/0D5E9CDBE6AACC7243D59230E612C351.png",
+    alt: "Sky Sports Premier League",
+    lozenge: true
+  },
+  "sports_tennis-alt": {
+    src: "https://res.newsletter.contact.sky/res/img/B3B8F7BE6C1902360D236C1FFF81A6C8.png",
+    alt: "Sky Sports Tennis",
+    lozenge: true
+  },
+  "sports_darts-alt": {
+    src: "https://res.newsletter.contact.sky/res/img/F91D15295037030159CA2A46F472F3BF.png",
+    alt: "Sky Sports Darts",
     lozenge: true
   },
 };
