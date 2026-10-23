@@ -223,6 +223,9 @@ function compileWithLogic(showsData: Show[], showOrders: OrderRow[], addons: Sho
     return output.join('\n');
 }
 
+// -1 index = order title not found in shows (usually a title mismatch)
+const hasMissingTitle = computed(() => /_shows\[-1\]/.test(outputLogic.value))
+
 const { copy } = useClipboard()
 const copyBtnText = ref('copy to clipboard')
 
@@ -267,6 +270,15 @@ function reset() {
             <UTextarea v-model="outputLogic" :ui="{ base: 'resize-none h-full' }" />
 
             <div class="grid place-content-center gap-8">
+                <UAlert
+                    v-if="hasMissingTitle"
+                    color="warning"
+                    variant="subtle"
+                    icon="i-lucide-triangle-alert"
+                    title="Title mismatch in content orders"
+                    description="Look for [-1] in the output. A show title in the content orders doesn't match the shows list."
+                    :ui="{ title: 'text-amber-900 dark:text-warning', description: 'text-amber-900 dark:text-warning', icon: 'text-amber-700 dark:text-warning' }"
+                />
                 <UButton @click="clipboardCopy">
                 {{ copyBtnText }}
                 </UButton>
