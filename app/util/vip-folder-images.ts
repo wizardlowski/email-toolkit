@@ -18,6 +18,16 @@ export const MORE_FROM_SKY_COLUMNS = [
   'BB_Mobile_Image_URL',
 ]
 
+// Accepted alternate spellings, rewritten to the column name before the exact
+// match. Experiences_ has been used for so long it's treated as valid.
+const FILENAME_ALIASES: [RegExp, string][] = [
+  [/^Experiences(?=_)/, 'Experience'],
+]
+
+function applyAliases(fileStem: string): string {
+  return FILENAME_ALIASES.reduce((s, [from, to]) => s.replace(from, to), fileStem)
+}
+
 // Only used for 'more from sky' detection and rename suggestions
 function looseKey(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]/g, '')
@@ -86,12 +96,13 @@ export function buildFolderImageMap(images: DroppedFile[], columns: string[]): F
 
   for (const { path, file } of images) {
     const name = path.split('/').pop() ?? path
-    const fileStem = stem(path)
+    const fileStem = applyAliases(stem(path))
     const isMoreFromSky = looseKey(fileStem) === 'morefromsky'
 
     if (!columnSet.has(fileStem) && !isMoreFromSky) {
       const suggestion = suggestColumn(fileStem, imageColumns)
-      unmatched.push({ file: name, suggestion: suggestion && `${suggestion}${name.slice(fileStem.length)}` })
+      const ext = name.match(/\.[^.]+$/)?.[0] ?? ''
+      unmatched.push({ file: name, suggestion: suggestion && `${suggestion}${ext}` })
       continue
     }
 

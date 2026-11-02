@@ -129,12 +129,22 @@ watch([csvData, selectedIndex, imageSource], () => {
   }
 }, { immediate: false })
 
-// Shallowest CSV wins, in case there's an old export nested somewhere
+function csvVersion(path: string): number {
+  const match = path.match(/_v(\d+)[^/]*\.csv$/i)
+  return match ? Number(match[1]) : -1
+}
+
+// Highest _vN wins (exports get re-issued as _v1, _v2...), then shallowest path
 function pickCsv(files: DroppedFile[]) {
   return files
     .filter(f => /\.csv$/i.test(f.path))
-    .sort((a, b) => a.path.split('/').length - b.path.split('/').length)[0]
+    .sort((a, b) =>
+      csvVersion(b.path) - csvVersion(a.path) ||
+      a.path.split('/').length - b.path.split('/').length
+    )[0]
 }
+
+const csvCount = ref(0)
 
 async function handleFiles(files: DroppedFile[]) {
   errorMessage.value = ''
@@ -144,6 +154,8 @@ async function handleFiles(files: DroppedFile[]) {
     errorMessage.value = 'No CSV found - drop the folder containing the CSV export'
     return
   }
+
+  csvCount.value = files.filter(f => /\.csv$/i.test(f.path)).length
 
   try {
     await processFile(csv.file)
@@ -401,6 +413,13 @@ async function takeScreenshot() {
       class="fixed bottom-4 right-4 z-10 shadow-lg max-w-md overflow-y-auto"
       :ui="{ body: 'p-4 sm:p-4' }"
     >
+      <!-- Loaded CSV -->
+      <div v-if="csvFile" class="mb-4 text-xs">
+        <label class="block font-bold mb-1">CSV:</label>
+        <p class="break-all">{{ csvFile.name }}</p>
+        <p v-if="csvCount > 1" class="text-neutral-500">Latest of {{ csvCount }} CSVs in folder</p>
+      </div>
+
       <!-- Image source -->
       <div v-if="hasFolderImages" class="mb-4">
         <label class="block text-xs font-bold mb-2">Images:</label>
