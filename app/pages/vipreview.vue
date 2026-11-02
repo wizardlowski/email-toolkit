@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import Papa from 'papaparse'
 import { toJpeg } from 'html-to-image'
+import type { DroppedFile } from '~/util/folder-drop'
+import { buildFolderImageMap, imageExt, type FolderImageMap } from '~/util/vip-folder-images'
 
 useHead({
   title: 'VIPreview'
@@ -89,7 +91,7 @@ function validatePodFields(data: any, fieldNames: string[]): boolean {
 
 // Auto-hide validation logic
 function validateAndUpdatePodVisibility() {
-  const data = currentData.value
+  const data = previewData.value
   if (!data) return
 
   // Validate each pod, set show ref based on field completeness
@@ -115,31 +117,61 @@ function validateAndUpdatePodVisibility() {
   }
 }
 
-// Watch for CSV data changes and region switches
-watch([csvData, selectedIndex], () => {
+// Local images from a dropped folder, keyed by CSV column
+const folderImages = shallowRef<FolderImageMap | null>(null)
+const imageSource = ref<'folder' | 'csv'>('csv')
+const hasFolderImages = computed(() => Object.keys(folderImages.value?.byColumn ?? {}).length > 0)
+
+// Watch for CSV data changes, region switches and image source toggle
+watch([csvData, selectedIndex, imageSource], () => {
   if (csvData.value.length > 0) {
     validateAndUpdatePodVisibility()
   }
 }, { immediate: false })
 
-async function handleDropZoneFiles(files: File[]) {
-  if (files.length === 0) {
-    return
-  }
-
-  if (files.length > 1) {
-    errorMessage.value = 'Please drop only one CSV file at a time'
-    return
-  }
-
-  const file = files[0]
-  if (file) {
-    processFile(file).catch(err => {
-      console.error('Error processing file:', err)
-      errorMessage.value = 'Error processing file'
-    })
-  }
+// Shallowest CSV wins, in case there's an old export nested somewhere
+function pickCsv(files: DroppedFile[]) {
+  return files
+    .filter(f => /\.csv$/i.test(f.path))
+    .sort((a, b) => a.path.split('/').length - b.path.split('/').length)[0]
 }
+
+async function handleFiles(files: DroppedFile[]) {
+  errorMessage.value = ''
+
+  const csv = pickCsv(files)
+  if (!csv) {
+    errorMessage.value = 'No CSV found - drop the folder containing the CSV export'
+    return
+  }
+
+  try {
+    await processFile(csv.file)
+  } catch (err) {
+    console.error('Error processing file:', err)
+    errorMessage.value = 'Error processing file'
+    return
+  }
+  if (!fileOpened.value) return
+
+  folderImages.value?.revoke()
+  const images = files.filter(f => imageExt.test(f.path))
+  const columns = Object.keys(csvData.value[0] ?? {})
+  folderImages.value = images.length ? buildFolderImageMap(images, columns) : null
+  imageSource.value = hasFolderImages.value ? 'folder' : 'csv'
+}
+
+function reset() {
+  folderImages.value?.revoke()
+  folderImages.value = null
+  imageSource.value = 'csv'
+  csvData.value = []
+  csvFile.value = null
+  fileOpened.value = false
+  errorMessage.value = ''
+}
+
+onUnmounted(() => folderImages.value?.revoke())
 
 async function readFileWithEncodingDetection(file: File): Promise<string> {
   // First, try to read as UTF-8
@@ -226,6 +258,13 @@ const currentData = computed(() => {
   return csvData.value.length > selectedIndex.value ? csvData.value[selectedIndex.value] : null
 })
 
+// CSV row with folder images swapped in; columns without a local image keep the CSV URL
+const previewData = computed(() => {
+  const row = currentData.value
+  if (!row || imageSource.value !== 'folder' || !folderImages.value) return row
+  return { ...row, ...folderImages.value.byColumn }
+})
+
 const screenshotFrame = templateRef<HTMLDivElement>('email-screenshot')
 const isCapturing = ref(false)
 
@@ -241,8 +280,9 @@ async function convertImagesToDataUrls(container: HTMLElement): Promise<Map<HTML
       originalSrcs.set(img, src)
 
       try {
-        const proxyUrl = `/api/imageProxy?url=${encodeURIComponent(src)}`
-        const response = await fetch(proxyUrl)
+        // Local folder images are same-origin blobs, no proxy needed
+        const fetchUrl = src.startsWith('blob:') ? src : `/api/imageProxy?url=${encodeURIComponent(src)}`
+        const response = await fetch(fetchUrl)
         const blob = await response.blob()
 
         const dataUrl = await new Promise<string>((resolve) => {
@@ -339,15 +379,19 @@ async function takeScreenshot() {
 
 <template>
   <div class="p-4 min-h-full">
-    <FileDropZone 
-      v-if="!fileOpened"
-      accept=".csv,text/csv" 
-      title="Drag and drop CSV file here"
-      button-text="Choose CSV File"
-      @drop="handleDropZoneFiles"
-      @input="handleDropZoneFiles"
-      class="mb-6"
-    />
+    <template v-if="!fileOpened">
+      <FileDropZone
+        directory
+        title="Drag and drop the newsletter folder (or just the CSV) here"
+        button-text="Choose folder"
+        @files="handleFiles"
+        class="mb-2"
+      />
+      <p class="mb-6 text-center text-sm text-neutral-500">
+        Images named after their CSV column (e.g. Hero_Image_URL.png) show in place of the CSV URLs.
+        A "More from Sky" image fills all the TV/BB/Mobile pods.
+      </p>
+    </template>
 
     <UAlert v-if="errorMessage" color="error" variant="soft" :title="errorMessage" icon="i-lucide-circle-alert" class="mb-6" />
 
@@ -357,6 +401,37 @@ async function takeScreenshot() {
       class="fixed bottom-4 right-4 z-10 shadow-lg max-w-md overflow-y-auto"
       :ui="{ body: 'p-4 sm:p-4' }"
     >
+      <!-- Image source -->
+      <div v-if="hasFolderImages" class="mb-4">
+        <label class="block text-xs font-bold mb-2">Images:</label>
+        <div class="flex gap-1">
+          <UButton
+            @click="imageSource = 'folder'"
+            :variant="imageSource === 'folder' ? 'solid' : 'ghost'"
+            :color="imageSource === 'folder' ? 'primary' : 'neutral'"
+            class="flex-1"
+            size="sm"
+          >
+            Folder
+          </UButton>
+          <UButton
+            @click="imageSource = 'csv'"
+            :variant="imageSource === 'csv' ? 'solid' : 'ghost'"
+            :color="imageSource === 'csv' ? 'primary' : 'neutral'"
+            class="flex-1"
+            size="sm"
+          >
+            CSV URLs
+          </UButton>
+        </div>
+      </div>
+      <div v-if="folderImages?.unmatched.length" class="mb-4 text-xs text-amber-600 dark:text-amber-400">
+        <p class="font-bold mb-1">Images not used - filename must match the CSV column:</p>
+        <p v-for="item in folderImages.unmatched" :key="item.file">
+          {{ item.file }}<template v-if="item.suggestion"> - rename to <b>{{ item.suggestion }}</b></template>
+        </p>
+      </div>
+
       <!-- Region selector -->
       <div v-if="csvData.length > 1" class="mb-4">
         <label class="block text-xs font-bold mb-2">Region:</label>
@@ -390,6 +465,15 @@ async function takeScreenshot() {
           class="text-sm w-full"
         >
           Screenshot
+        </UButton>
+        <UButton
+          @click="reset"
+          variant="outline"
+          color="neutral"
+          class="text-sm w-full mt-2"
+          block
+        >
+          Load another folder
         </UButton>
       </div>
 
@@ -460,15 +544,15 @@ async function takeScreenshot() {
       
       <!-- headline -->
       <h1 class="text-4xl leading-10 mx-12 my-6">
-        {{ currentData.Main_Headline }}
+        {{ previewData.Main_Headline }}
       </h1>
 
       <VIPContent 
         v-if="showTacticalHero"
-        :imgUrl="currentData.Tactical_Hero_Image_URL" 
-        :text="currentData.Tactical_Hero_Copy"
-        :ctaUrl="currentData.Tactical_Hero_CTA_URL"
-        :ctaText="currentData.Tactical_Hero_CTA_Copy"
+        :imgUrl="previewData.Tactical_Hero_Image_URL" 
+        :text="previewData.Tactical_Hero_Copy"
+        :ctaUrl="previewData.Tactical_Hero_CTA_URL"
+        :ctaText="previewData.Tactical_Hero_CTA_Copy"
         :csvColumns="{
           imgUrl: 'Tactical Hero Image URL',
           text: 'Tactical Hero Copy',
@@ -478,10 +562,10 @@ async function takeScreenshot() {
       />
       <VIPContent 
         v-else
-        :imgUrl="currentData.Hero_Image_URL" 
-        :text="currentData.Hero_Copy"
-        :ctaUrl="currentData.Hero_CTA_URL"
-        :ctaText="currentData.Hero_CTA_Copy"
+        :imgUrl="previewData.Hero_Image_URL" 
+        :text="previewData.Hero_Copy"
+        :ctaUrl="previewData.Hero_CTA_URL"
+        :ctaText="previewData.Hero_CTA_Copy"
         :csvColumns="{
           imgUrl: 'Hero Image URL',
           text: 'Hero Copy',
@@ -492,11 +576,11 @@ async function takeScreenshot() {
 
       <VIPContent 
         v-if="showSports"
-        :headingText="currentData.Sports_Heading"
-        :imgUrl="currentData.Sports_1_Image_URL"
-        :text="currentData.Sports_Copy"
-        :ctaUrl="currentData.Sports_CTA_URL"
-        :ctaText="currentData.Sports_CTA_Copy"
+        :headingText="previewData.Sports_Heading"
+        :imgUrl="previewData.Sports_1_Image_URL"
+        :text="previewData.Sports_Copy"
+        :ctaUrl="previewData.Sports_CTA_URL"
+        :ctaText="previewData.Sports_CTA_Copy"
         :csvColumns="{
           headingText: 'Sports Heading',
           imgUrl: 'Sports Image URL',
@@ -508,11 +592,11 @@ async function takeScreenshot() {
 
       <VIPContent 
         v-if="showRewardsOnRepeat"
-        :headingText="currentData.Rewards_on_Repeat_Heading"
-        :imgUrl="currentData.Rewards_on_Repeat_Image_URL"
-        :text="currentData.Rewards_on_Repeat_Copy"
-        :ctaUrl="currentData.Rewards_on_Repeat_CTA_URL"
-        :ctaText="currentData.Rewards_on_Repeat_CTA_Copy"
+        :headingText="previewData.Rewards_on_Repeat_Heading"
+        :imgUrl="previewData.Rewards_on_Repeat_Image_URL"
+        :text="previewData.Rewards_on_Repeat_Copy"
+        :ctaUrl="previewData.Rewards_on_Repeat_CTA_URL"
+        :ctaText="previewData.Rewards_on_Repeat_CTA_Copy"
         :csvColumns="{
           headingText: 'Rewards on Repeat Heading',
           imgUrl: 'Rewards on Repeat Image URL',
@@ -524,11 +608,11 @@ async function takeScreenshot() {
 
       <VIPContent 
         v-if="showExperience"
-        :headingText="currentData.Experience_Heading"
-        :imgUrl="currentData.Experience_1_Image_URL"
-        :text="currentData.Experience_Copy"
-        :ctaUrl="currentData.Experience_CTA_URL"
-        :ctaText="currentData.Experience_CTA_Copy"
+        :headingText="previewData.Experience_Heading"
+        :imgUrl="previewData.Experience_1_Image_URL"
+        :text="previewData.Experience_Copy"
+        :ctaUrl="previewData.Experience_CTA_URL"
+        :ctaText="previewData.Experience_CTA_Copy"
         type="cols"
         :csvColumns="{
           headingText: 'Experience Heading',
@@ -541,11 +625,11 @@ async function takeScreenshot() {
 
       <VIPContent 
         v-if="showEverydaySavings"
-        :headingText="currentData.Everyday_Savings_Heading"
-        :imgUrl="currentData.Everyday_Savings_Image_URL"
-        :text="currentData.Everyday_Savings_Copy"
-        :ctaUrl="currentData.Everyday_Savings_CTA_URL"
-        :ctaText="currentData.Everyday_Savings_CTA_Copy"
+        :headingText="previewData.Everyday_Savings_Heading"
+        :imgUrl="previewData.Everyday_Savings_Image_URL"
+        :text="previewData.Everyday_Savings_Copy"
+        :ctaUrl="previewData.Everyday_Savings_CTA_URL"
+        :ctaText="previewData.Everyday_Savings_CTA_Copy"
         :csvColumns="{
           headingText: 'Everyday Savings Heading',
           imgUrl: 'Everyday Savings Image URL',
@@ -557,11 +641,11 @@ async function takeScreenshot() {
 
       <VIPContent 
         v-if="showTvCust"
-        :headingText="currentData.TV_Customers_Heading"
-        :imgUrl="currentData.TV_Customers_Image_URL"
-        :text="currentData.TV_Customers_Copy"
-        :ctaUrl="currentData.TV_Customers_CTA_URL"
-        :ctaText="currentData.TV_Customers_CTA_Copy"
+        :headingText="previewData.TV_Customers_Heading"
+        :imgUrl="previewData.TV_Customers_Image_URL"
+        :text="previewData.TV_Customers_Copy"
+        :ctaUrl="previewData.TV_Customers_CTA_URL"
+        :ctaText="previewData.TV_Customers_CTA_Copy"
         :csvColumns="{
           headingText: 'TV Customers Heading',
           imgUrl: 'TV Customers Image URL',
@@ -573,11 +657,11 @@ async function takeScreenshot() {
 
       <VIPContent 
         v-if="showBbCust"
-        :headingText="currentData.BB_Customers_Heading"
-        :imgUrl="currentData.BB_Customers_Image_URL"
-        :text="currentData.BB_Customers_Copy"
-        :ctaUrl="currentData.BB_Customers_CTA_URL"
-        :ctaText="currentData.BB_Customers_CTA_Copy"
+        :headingText="previewData.BB_Customers_Heading"
+        :imgUrl="previewData.BB_Customers_Image_URL"
+        :text="previewData.BB_Customers_Copy"
+        :ctaUrl="previewData.BB_Customers_CTA_URL"
+        :ctaText="previewData.BB_Customers_CTA_Copy"
         :csvColumns="{
           headingText: 'BB Customers Heading',
           imgUrl: 'BB Customers Image URL',
@@ -589,11 +673,11 @@ async function takeScreenshot() {
 
       <VIPContent 
         v-if="showMobileCust"
-        :headingText="currentData.Mobile_Heading"
-        :imgUrl="currentData.Mobile_Image_URL"
-        :text="currentData.Mobile_Copy"
-        :ctaUrl="currentData.Mobile_CTA_URL"
-        :ctaText="currentData.Mobile_CTA_Copy"
+        :headingText="previewData.Mobile_Heading"
+        :imgUrl="previewData.Mobile_Image_URL"
+        :text="previewData.Mobile_Copy"
+        :ctaUrl="previewData.Mobile_CTA_URL"
+        :ctaText="previewData.Mobile_CTA_Copy"
         :csvColumns="{
           headingText: 'Mobile Heading',
           imgUrl: 'Mobile Image URL',
@@ -605,11 +689,11 @@ async function takeScreenshot() {
 
       <VIPContent 
         v-if="showTvBb"
-        :headingText="currentData.TV_BB_Heading"
-        :imgUrl="currentData.TV_BB_Image_URL"
-        :text="currentData.TV_BB_Copy"
-        :ctaUrl="currentData.TV_BB_CTA_URL"
-        :ctaText="currentData.TV_BB_CTA_Copy"
+        :headingText="previewData.TV_BB_Heading"
+        :imgUrl="previewData.TV_BB_Image_URL"
+        :text="previewData.TV_BB_Copy"
+        :ctaUrl="previewData.TV_BB_CTA_URL"
+        :ctaText="previewData.TV_BB_CTA_Copy"
         :csvColumns="{
           headingText: 'TV BB Heading',
           imgUrl: 'TV BB Image URL',
@@ -621,11 +705,11 @@ async function takeScreenshot() {
 
       <VIPContent 
         v-if="showTvBbMobile"
-        :headingText="currentData.TV_BB_Mobile_Heading"
-        :imgUrl="currentData.TV_BB_Mobile_Image_URL"
-        :text="currentData.TV_BB_Mobile_Copy"
-        :ctaUrl="currentData.TV_BB_Mobile_CTA_URL"
-        :ctaText="currentData.TV_BB_Mobile_CTA_Copy"
+        :headingText="previewData.TV_BB_Mobile_Heading"
+        :imgUrl="previewData.TV_BB_Mobile_Image_URL"
+        :text="previewData.TV_BB_Mobile_Copy"
+        :ctaUrl="previewData.TV_BB_Mobile_CTA_URL"
+        :ctaText="previewData.TV_BB_Mobile_CTA_Copy"
         :csvColumns="{
           headingText: 'TV BB Mobile Heading',
           imgUrl: 'TV BB Mobile Image URL',
@@ -637,11 +721,11 @@ async function takeScreenshot() {
 
       <VIPContent 
         v-if="showTvMobile"
-        :headingText="currentData.TV_Mobile_Heading"
-        :imgUrl="currentData.TV_Mobile_Image_URL"
-        :text="currentData.TV_Mobile_Copy"
-        :ctaUrl="currentData.TV_Mobile_CTA_URL"
-        :ctaText="currentData.TV_Mobile_CTA_Copy"
+        :headingText="previewData.TV_Mobile_Heading"
+        :imgUrl="previewData.TV_Mobile_Image_URL"
+        :text="previewData.TV_Mobile_Copy"
+        :ctaUrl="previewData.TV_Mobile_CTA_URL"
+        :ctaText="previewData.TV_Mobile_CTA_Copy"
         :csvColumns="{
           headingText: 'TV Mobile Heading',
           imgUrl: 'TV Mobile Image URL',
@@ -653,11 +737,11 @@ async function takeScreenshot() {
 
       <VIPContent 
         v-if="showBbMobile"
-        :headingText="currentData.BB_Mobile_Heading"
-        :imgUrl="currentData.BB_Mobile_Image_URL"
-        :text="currentData.BB_Mobile_Copy"
-        :ctaUrl="currentData.BB_Mobile_CTA_URL"
-        :ctaText="currentData.BB_Mobile_CTA_Copy"
+        :headingText="previewData.BB_Mobile_Heading"
+        :imgUrl="previewData.BB_Mobile_Image_URL"
+        :text="previewData.BB_Mobile_Copy"
+        :ctaUrl="previewData.BB_Mobile_CTA_URL"
+        :ctaText="previewData.BB_Mobile_CTA_Copy"
         :csvColumns="{
           headingText: 'BB Mobile Heading',
           imgUrl: 'BB Mobile Image URL',
@@ -669,11 +753,11 @@ async function takeScreenshot() {
 
       <VIPContent 
         v-if="showExtraEnt"
-        :headingText="currentData.Extra_Entertainment_Heading"
-        :imgUrl="currentData.Extra_Entertainment_Image_URL"
-        :text="currentData.Extra_Entertainment_Copy"
-        :ctaUrl="currentData.Extra_Entertainment_CTA_URL"
-        :ctaText="currentData.Extra_Entertainment_CTA_Copy"
+        :headingText="previewData.Extra_Entertainment_Heading"
+        :imgUrl="previewData.Extra_Entertainment_Image_URL"
+        :text="previewData.Extra_Entertainment_Copy"
+        :ctaUrl="previewData.Extra_Entertainment_CTA_URL"
+        :ctaText="previewData.Extra_Entertainment_CTA_Copy"
         :csvColumns="{
           headingText: 'Extra Entertainment Heading',
           imgUrl: 'Extra Entertainment Image URL',
@@ -684,7 +768,7 @@ async function takeScreenshot() {
       />
 
       <p class="text-[21px] leading-6 mt0 mx-6 mb-12">
-        <b>{{ currentData.Signoff_Copy }}</b>
+        <b>{{ previewData.Signoff_Copy }}</b>
       </p>
 
       <div class="h-1.5 gradient"></div>
@@ -698,13 +782,13 @@ async function takeScreenshot() {
           If you do not want to continue to receive these newsletters please <a href="#" class="underline">click on this link</a>.
           <br><br>
           Please do not reply to this email as this address is not&nbsp;monitored.
-          <template v-if="currentData.Legal_Copy">
+          <template v-if="previewData.Legal_Copy">
             <br><br>
-            {{ currentData.Legal_Copy }}
+            {{ previewData.Legal_Copy }}
           </template>
-          <template v-if="currentData.Legal_Copy_Extra">
+          <template v-if="previewData.Legal_Copy_Extra">
             <br><br>
-            {{ currentData.Legal_Copy_Extra }}
+            {{ previewData.Legal_Copy_Extra }}
           </template>
           <br><br>
           &#169; {{ new Date().getFullYear() }} Sky UK Ltd. Sky UK Ltd (company no. 02906991) has its registered office at Grant Way, Isleworth, Middlesex&nbsp;TW7&nbsp;5QD.
