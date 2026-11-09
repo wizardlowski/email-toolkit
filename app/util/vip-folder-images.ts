@@ -97,7 +97,8 @@ export function buildFolderImageMap(images: DroppedFile[], columns: string[]): F
   for (const { path, file } of images) {
     const name = path.split('/').pop() ?? path
     const fileStem = applyAliases(stem(path))
-    const isMoreFromSky = looseKey(fileStem) === 'morefromsky'
+    // Any name starting 'more from sky' (more_from_sky, More-From-Sky_Image_URL, more_from_sky_v2...)
+    const isMoreFromSky = looseKey(fileStem).startsWith('morefromsky')
 
     if (!columnSet.has(fileStem) && !isMoreFromSky) {
       const suggestion = suggestColumn(fileStem, imageColumns)
@@ -113,7 +114,7 @@ export function buildFolderImageMap(images: DroppedFile[], columns: string[]): F
     else byColumn[fileStem] = url
   }
 
-  // Specific pod image wins over the shared one
+  // Fills cross-sell pods, replacing any CSV URL; a specific pod image wins over the shared one
   if (moreFromSky) {
     for (const column of MORE_FROM_SKY_COLUMNS) {
       byColumn[column] ??= moreFromSky
