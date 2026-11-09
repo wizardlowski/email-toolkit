@@ -1,14 +1,12 @@
 export default defineEventHandler(async (event) => {
-  const { url } = await readBody(event)
+  const body = await readBody(event)
+  const url = body?.url
 
-  try {
-    const response = await fetch(url, {
-      method: 'GET',
-    })
-    
-    return { finalUrl: response.url }
-  } catch (error) {
-    console.error('Error following redirect:', error)
-    return { finalUrl: url }
+  if (!url || typeof url !== 'string') {
+    throw createError({ statusCode: 400, message: 'Missing url in request body' })
   }
+
+  // Falls back to the original URL if any hop fails or is blocked
+  const { finalUrl } = await followRedirects(url)
+  return { finalUrl }
 })

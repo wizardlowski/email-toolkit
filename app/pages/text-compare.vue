@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { diffWords } from 'diff'
+import { escapeHtml } from '~/util/escape-html'
 
 useHead({
   title: 'Text Compare'
@@ -30,21 +31,24 @@ function compare () {
 
   compared.value = true
 
-  console.log(diff)
-
   let outputOne = ''
   let outputTwo = ''
   diff.forEach((part) => {
+    // Output is rendered with v-html, so the pasted text must be escaped
+    const value = escapeHtml(part.value)
+    const before = part.value.startsWith('\n') ? '<br>' : ''
+    const after = part.value.endsWith('\n') ? '<br>' : ''
+
     if (part.removed) {
-      outputOne += `${part.value.startsWith('\n') ? '<br>' : ''}<span class="highlight">${part.value}</span>${part.value.endsWith('\n') ? '<br>' : ''}`
+      outputOne += `${before}<span class="highlight">${value}</span>${after}`
       return
     }
     if (part.added) {
-      outputTwo += `${part.value.startsWith('\n') ? '<br>' : ''}<span class="highlight">${part.value}</span>${part.value.endsWith('\n') ? '<br>' : ''}`
+      outputTwo += `${before}<span class="highlight">${value}</span>${after}`
       return
     }
 
-    const noHighlight = `${part.value.startsWith('\n') ? '<br>' : ''}${part.value}${part.value.endsWith('\n') ? '<br>' : ''}`
+    const noHighlight = `${before}${value}${after}`
     outputOne += noHighlight
     outputTwo += noHighlight
   })
