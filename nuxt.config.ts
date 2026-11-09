@@ -20,6 +20,7 @@ const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'no-referrer',
+  'X-Robots-Tag': 'noindex, nofollow',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
 }
 

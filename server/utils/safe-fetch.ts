@@ -28,7 +28,10 @@ const V6_RANGES: [string, number][] = [
   ['::', 128], // unspecified
   ['::1', 128], // loopback
   ['64:ff9b::', 96], // NAT64
+  ['100::', 64], // discard
+  ['2001::', 32], // Teredo (wraps an IPv4 address)
   ['2001:db8::', 32], // documentation
+  ['2002::', 16], // 6to4 (wraps an IPv4 address)
   ['fc00::', 7], // unique local
   ['fe80::', 10], // link-local
   ['ff00::', 8] // multicast
