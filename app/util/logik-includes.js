@@ -1,3 +1,6 @@
+// Inline 3:4 grey placeholder - no third-party image host
+const placeholder = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 600 800%22%3E%3Crect width=%22600%22 height=%22800%22 fill=%22%23cccccc%22/%3E%3C/svg%3E'
+
 export const footerStart = `<table border="0" cellpadding="0" cellspacing="0" role="presentation" align="center" width="90%">
 <tr>
   <td align="center" style="padding: 40px 0 35px 0;">
@@ -62,9 +65,9 @@ export const gridSTV = `<div>
   <tr><th style="width: 298px;background-color: #d2d3d5;"><![endif]-->
     <div style="display: table-cell; width: 298px; background-color: #d2d3d5;" class="grid-col-lg">
       <a href="https://www.sky.com/" target="_blank" _label="grid_1">
-        <img src="https://via.placeholder.com/600x800" alt="" width="298" height="397" border="0" style="display: block;" class="mobilehide">
+        <img src="${placeholder}" alt="" width="298" height="397" border="0" style="display: block;" class="mobilehide">
         <!--[if !mso]><!-- -->
-        <div class="mobileshow" style="background-image: url('https://via.placeholder.com/600x800'); background-size: cover; background-repeat: no-repeat; display: none;">
+        <div class="mobileshow" style="background-image: url('${placeholder}'); background-size: cover; background-repeat: no-repeat; display: none;">
           <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/2666989355d7d0ca2ae32cbfc332ad379ab2d2503b535834e72b522d793911dc.png" alt="" border="0" style="display: block;" class="deviceWidth">
         </div>
         <!--<![endif]-->
@@ -82,9 +85,9 @@ export const gridSTV = `<div>
   <!--[if mso]></th><th style="width: 298px;background-color: #d2d3d5;"><![endif]-->
     <div style="display: table-cell; width: 298px; background-color: #d2d3d5;" class="grid-col-lg">
       <a href="https://www.sky.com/" target="_blank" _label="grid_2">
-        <img src="https://via.placeholder.com/600x800" alt="" width="298" height="397" border="0" style="display: block;" class="mobilehide">
+        <img src="${placeholder}" alt="" width="298" height="397" border="0" style="display: block;" class="mobilehide">
         <!--[if !mso]><!-- -->
-        <div class="mobileshow" style="background-image: url('https://via.placeholder.com/600x800') !important; background-size: cover; background-repeat: no-repeat; display: none;">
+        <div class="mobileshow" style="background-image: url('${placeholder}') !important; background-size: cover; background-repeat: no-repeat; display: none;">
           <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/2666989355d7d0ca2ae32cbfc332ad379ab2d2503b535834e72b522d793911dc.png" alt="" border="0" style="display: block;" class="deviceWidth">
         </div>
         <!--<![endif]-->
@@ -108,9 +111,9 @@ export const gridSTV = `<div>
 <tr><th style="width: 198px;background-color: #d2d3d5;"><![endif]-->
   <div style="display: table-cell; width: 198px; background-color: #d2d3d5;" class="grid-col-sml">
     <a href="https://www.sky.com/" target="_blank" _label="grid_1">
-      <img src="https://via.placeholder.com/600x800" alt="" width="198" height="264" border="0" style="display: block;" class="mobilehide">
+      <img src="${placeholder}" alt="" width="198" height="264" border="0" style="display: block;" class="mobilehide">
       <!--[if !mso]><!-- -->
-      <div class="mobileshow" style="background-image: url('https://via.placeholder.com/600x800'); background-size: cover; background-repeat: no-repeat; display: none;">
+      <div class="mobileshow" style="background-image: url('${placeholder}'); background-size: cover; background-repeat: no-repeat; display: none;">
         <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/b94c197551053ac1a7444b4a023e0ac5b243b27c1c5c5a34bd4305af035a4ff5.png" alt="" border="0" style="display: block;" class="deviceWidth">
       </div>
       <!--<![endif]-->
@@ -128,9 +131,9 @@ export const gridSTV = `<div>
 <!--[if mso]></th><th style="width: 198px;background-color: #d2d3d5;"><![endif]-->
   <div style="display: table-cell; width: 198px; background-color: #d2d3d5;" class="grid-col-sml">
     <a href="https://www.sky.com/" target="_blank" _label="grid_2">
-      <img src="https://via.placeholder.com/600x800" alt="" width="198" height="264" border="0" style="display: block;" class="mobilehide">
+      <img src="${placeholder}" alt="" width="198" height="264" border="0" style="display: block;" class="mobilehide">
       <!--[if !mso]><!-- -->
-      <div class="mobileshow" style="background-image: url('https://via.placeholder.com/600x800'); background-size: cover; background-repeat: no-repeat; display: none;">
+      <div class="mobileshow" style="background-image: url('${placeholder}'); background-size: cover; background-repeat: no-repeat; display: none;">
         <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/b94c197551053ac1a7444b4a023e0ac5b243b27c1c5c5a34bd4305af035a4ff5.png" alt="" border="0" style="display: block;" class="deviceWidth">
       </div>
       <!--<![endif]-->
@@ -148,9 +151,9 @@ export const gridSTV = `<div>
 <!--[if mso]></th><th style="width: 198px;background-color: #d2d3d5;"><![endif]-->
   <div style="display: table-cell; width: 198px; background-color: #d2d3d5;" class="grid-col-sml">
     <a href="https://www.sky.com/" target="_blank" _label="grid_2">
-      <img src="https://via.placeholder.com/600x800" alt="" width="198" height="264" border="0" style="display: block;" class="mobilehide">
+      <img src="${placeholder}" alt="" width="198" height="264" border="0" style="display: block;" class="mobilehide">
       <!--[if !mso]><!-- -->
-      <div class="mobileshow" style="background-image: url('https://via.placeholder.com/600x800'); background-size: cover; background-repeat: no-repeat; display: none;">
+      <div class="mobileshow" style="background-image: url('${placeholder}'); background-size: cover; background-repeat: no-repeat; display: none;">
         <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/b94c197551053ac1a7444b4a023e0ac5b243b27c1c5c5a34bd4305af035a4ff5.png" alt="" border="0" style="display: block;" class="deviceWidth">
       </div>
       <!--<![endif]-->
@@ -176,9 +179,9 @@ export const gridCIN = `<div>
   <tr><th style="width: 298px;background-color: #d2d3d5;"><![endif]-->
     <div style="display: table-cell; width: 298px; background-color: #d2d3d5;" class="grid-col-lg">
       <a href="https://www.sky.com/" target="_blank" _label="grid_1">
-        <img src="https://via.placeholder.com/600x800" alt="" width="298" height="397" border="0" style="display: block;" class="mobilehide">
+        <img src="${placeholder}" alt="" width="298" height="397" border="0" style="display: block;" class="mobilehide">
         <!--[if !mso]><!-- -->
-        <div class="mobileshow" style="background-image: url('https://via.placeholder.com/600x800'); background-size: cover; background-repeat: no-repeat; display: none;">
+        <div class="mobileshow" style="background-image: url('${placeholder}'); background-size: cover; background-repeat: no-repeat; display: none;">
           <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/2666989355d7d0ca2ae32cbfc332ad379ab2d2503b535834e72b522d793911dc.png" alt="" border="0" style="display: block;" class="deviceWidth">
         </div>
         <!--<![endif]-->
@@ -189,9 +192,9 @@ export const gridCIN = `<div>
   <!--[if mso]></th><th style="width: 298px;background-color: #d2d3d5;"><![endif]-->
     <div style="display: table-cell; width: 298px; background-color: #d2d3d5;" class="grid-col-lg">
       <a href="https://www.sky.com/" target="_blank" _label="grid_2">
-        <img src="https://via.placeholder.com/600x800" alt="" width="298" height="397" border="0" style="display: block;" class="mobilehide">
+        <img src="${placeholder}" alt="" width="298" height="397" border="0" style="display: block;" class="mobilehide">
         <!--[if !mso]><!-- -->
-        <div class="mobileshow" style="background-image: url('https://via.placeholder.com/600x800') !important; background-size: cover; background-repeat: no-repeat; display: none;">
+        <div class="mobileshow" style="background-image: url('${placeholder}') !important; background-size: cover; background-repeat: no-repeat; display: none;">
           <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/2666989355d7d0ca2ae32cbfc332ad379ab2d2503b535834e72b522d793911dc.png" alt="" border="0" style="display: block;" class="deviceWidth">
         </div>
         <!--<![endif]-->
@@ -208,9 +211,9 @@ export const gridCIN = `<div>
 <tr><th style="width: 198px;background-color: #d2d3d5;"><![endif]-->
   <div style="display: table-cell; width: 198px; background-color: #d2d3d5;" class="grid-col-sml">
     <a href="https://www.sky.com/" target="_blank" _label="grid_1">
-      <img src="https://via.placeholder.com/600x800" alt="" width="198" height="264" border="0" style="display: block;" class="mobilehide">
+      <img src="${placeholder}" alt="" width="198" height="264" border="0" style="display: block;" class="mobilehide">
       <!--[if !mso]><!-- -->
-      <div class="mobileshow" style="background-image: url('https://via.placeholder.com/600x800'); background-size: cover; background-repeat: no-repeat; display: none;">
+      <div class="mobileshow" style="background-image: url('${placeholder}'); background-size: cover; background-repeat: no-repeat; display: none;">
         <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/b94c197551053ac1a7444b4a023e0ac5b243b27c1c5c5a34bd4305af035a4ff5.png" alt="" border="0" style="display: block;" class="deviceWidth">
       </div>
       <!--<![endif]-->
@@ -221,9 +224,9 @@ export const gridCIN = `<div>
 <!--[if mso]></th><th style="width: 198px;background-color: #d2d3d5;"><![endif]-->
   <div style="display: table-cell; width: 198px; background-color: #d2d3d5;" class="grid-col-sml">
     <a href="https://www.sky.com/" target="_blank" _label="grid_2">
-      <img src="https://via.placeholder.com/600x800" alt="" width="198" height="264" border="0" style="display: block;" class="mobilehide">
+      <img src="${placeholder}" alt="" width="198" height="264" border="0" style="display: block;" class="mobilehide">
       <!--[if !mso]><!-- -->
-      <div class="mobileshow" style="background-image: url('https://via.placeholder.com/600x800'); background-size: cover; background-repeat: no-repeat; display: none;">
+      <div class="mobileshow" style="background-image: url('${placeholder}'); background-size: cover; background-repeat: no-repeat; display: none;">
         <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/b94c197551053ac1a7444b4a023e0ac5b243b27c1c5c5a34bd4305af035a4ff5.png" alt="" border="0" style="display: block;" class="deviceWidth">
       </div>
       <!--<![endif]-->
@@ -234,9 +237,9 @@ export const gridCIN = `<div>
 <!--[if mso]></th><th style="width: 198px;background-color: #d2d3d5;"><![endif]-->
   <div style="display: table-cell; width: 198px; background-color: #d2d3d5;" class="grid-col-sml">
     <a href="https://www.sky.com/" target="_blank" _label="grid_2">
-      <img src="https://via.placeholder.com/600x800" alt="" width="198" height="264" border="0" style="display: block;" class="mobilehide">
+      <img src="${placeholder}" alt="" width="198" height="264" border="0" style="display: block;" class="mobilehide">
       <!--[if !mso]><!-- -->
-      <div class="mobileshow" style="background-image: url('https://via.placeholder.com/600x800'); background-size: cover; background-repeat: no-repeat; display: none;">
+      <div class="mobileshow" style="background-image: url('${placeholder}'); background-size: cover; background-repeat: no-repeat; display: none;">
         <img src="https://res.newsletter.contact.sky/res/sky_ids_mid_t/b94c197551053ac1a7444b4a023e0ac5b243b27c1c5c5a34bd4305af035a4ff5.png" alt="" border="0" style="display: block;" class="deviceWidth">
       </div>
       <!--<![endif]-->
@@ -252,13 +255,13 @@ export const cinWeeklyMovies = `<table align="center" cellspacing="0" cellpaddin
 <tr>
   <th style="width: 285px;" class="w-auto">
     <a href="https://www.sky.com/" target="_blank" style="color: #ffffff;">
-      <img src="https://via.placeholder.com/285x380" alt="" border="0" style="display: block;" class="deviceWidth">
+      <img src="${placeholder}" alt="" border="0" style="display: block;" class="deviceWidth">
     </a>
   </th>
   <th style="width:10px;">&nbsp;</th>
   <th style="width: 285px;" class="w-auto">
     <a href="https://www.sky.com/" target="_blank" style="color: #ffffff;">
-      <img src="https://via.placeholder.com/285x380" alt="" border="0" style="display: block;" class="deviceWidth">
+      <img src="${placeholder}" alt="" border="0" style="display: block;" class="deviceWidth">
     </a>
   </th>
 </tr>

@@ -5,17 +5,17 @@
 
 @font-face {
   font-family: "Sky Text";
-  src: url("https://static.skyassets.com/fonts/sky-regular.woff2") format("woff2");
+  src: local("Sky Text"), url("https://static.skyassets.com/fonts/sky-regular.woff2") format("woff2");
   font-display: fallback;
 }
 @font-face {
   font-family: "Sky Text Medium";
-  src: url("https://static.skyassets.com/fonts/sky-medium.woff2") format("woff2");
+  src: local("Sky Text Medium"), url("https://static.skyassets.com/fonts/sky-medium.woff2") format("woff2");
   font-display: fallback;
 }
 @font-face {
   font-family: "Sky Text Headline";
-  src: url("https://static.skyassets.com/fonts/sky-headline.woff2") format("woff2");
+  src: local("Sky Text Headline"), url("https://static.skyassets.com/fonts/sky-headline.woff2") format("woff2");
   font-display: fallback;
 }
 @theme {

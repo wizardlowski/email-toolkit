@@ -243,7 +243,8 @@ function clearAll() {
         >{{ renderError.context }}</pre>
       </div>
 
-      <iframe frameborder="0" class="h-full w-full" :srcdoc="output"></iframe>
+      <!-- Sandboxed without allow-scripts: scripts in rendered email must not run in this origin -->
+      <iframe frameborder="0" class="h-full w-full" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" :srcdoc="output"></iframe>
     </div>
   </div>
 </template>

@@ -137,7 +137,7 @@ async function extractBrowserViewUrl(file: File): Promise<string> {
     
     return ''
   } catch (error: unknown) {
-    console.error('💥 Error extracting browser view URL:', error)
+    console.error('Error extracting browser view URL:', error)
     return ''
   }
 }

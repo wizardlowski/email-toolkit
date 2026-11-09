@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { escapeHtml } from '~/util/escape-html'
+
 useHead({
   title: 'Gradient Wrap'
 })
@@ -128,7 +130,7 @@ function wrapTextWithGradient(text:string , gradientColours:Array<{ colour: stri
       if (line[j] === ' ') {
         output += line[j]
       } else {
-        output += '<span style="color:' + colour + '">' + line[j] + '</span>';
+        output += '<span style="color:' + colour + '">' + escapeHtml(line[j]) + '</span>';
       }
     }
     
@@ -140,7 +142,7 @@ function wrapTextWithGradient(text:string , gradientColours:Array<{ colour: stri
   
   // Adding some aria to improve accessibility of split text
   const textForAria = text.replace('\n', ' ')
-  return '<span aria-label="' + textForAria + '" role="text"><span aria-hidden="true">' + output + '</span></span>';
+  return '<span aria-label="' + escapeHtml(textForAria) + '" role="text"><span aria-hidden="true">' + output + '</span></span>';
 }
 
 const output = computed<string>(() => wrapTextWithGradient(input.value, GRADIENTS[gradientSelected.value]))

@@ -373,9 +373,9 @@ onUnmounted(() => assets?.revoke())
           >{{ renderError.context }}</pre>
         </div>
 
-        <!-- No sandbox attribute: srcdoc inherits this origin, which is what lets
-             the blob: image URLs resolve -->
-        <iframe frameborder="0" class="h-full w-full" :srcdoc="output"></iframe>
+        <!-- Sandboxed without allow-scripts so email scripts cannot run in this origin.
+             allow-same-origin is kept: it is what lets the blob: image URLs resolve -->
+        <iframe frameborder="0" class="h-full w-full" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" :srcdoc="output"></iframe>
       </div>
     </div>
   </div>

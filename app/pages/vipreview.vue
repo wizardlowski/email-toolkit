@@ -295,6 +295,7 @@ async function convertImagesToDataUrls(container: HTMLElement): Promise<Map<HTML
         // Local folder images are same-origin blobs, no proxy needed
         const fetchUrl = src.startsWith('blob:') ? src : `/api/imageProxy?url=${encodeURIComponent(src)}`
         const response = await fetch(fetchUrl)
+        if (!response.ok) throw new Error(`Image fetch responded ${response.status}`)
         const blob = await response.blob()
 
         const dataUrl = await new Promise<string>((resolve) => {
@@ -319,9 +320,9 @@ function restoreImageSrcs(originalSrcs: Map<HTMLImageElement, string>) {
   })
 }
 
-async function fetchFontAsBase64(url: string): Promise<string> {
-  const proxyUrl = `/api/fontProxy?url=${encodeURIComponent(url)}`
-  const response = await fetch(proxyUrl)
+async function fetchFontAsBase64(name: string): Promise<string> {
+  const response = await fetch(`/api/fontProxy?name=${name}`)
+  if (!response.ok) throw new Error(`Font proxy responded ${response.status}`)
   const blob = await response.blob()
 
   return new Promise((resolve) => {
@@ -333,14 +334,14 @@ async function fetchFontAsBase64(url: string): Promise<string> {
 
 async function buildFontEmbedCSS(): Promise<string> {
   const fonts = [
-    { family: 'Sky Text', url: 'https://static.skyassets.com/fonts/sky-regular.woff2' },
-    { family: 'Sky Text Medium', url: 'https://static.skyassets.com/fonts/sky-medium.woff2' }
+    { family: 'Sky Text', name: 'regular' },
+    { family: 'Sky Text Medium', name: 'medium' }
   ]
 
   const fontFaces = await Promise.all(
     fonts.map(async (font) => {
       try {
-        const base64 = await fetchFontAsBase64(font.url)
+        const base64 = await fetchFontAsBase64(font.name)
         return `@font-face { font-family: "${font.family}"; src: url("${base64}") format("woff2"); }`
       } catch (error) {
         console.error('Failed to embed font:', font.family, error)

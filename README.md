@@ -1,42 +1,25 @@
-# Nuxt 3 Minimal Starter
+# Email Toolkit
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Internal Nuxt 4 app of tools for building HTML emails. See [SECURITY.md](SECURITY.md) for data handling, endpoints and dependencies.
 
 ## Setup
 
-Make sure to install the dependencies:
+Node 26+.
 
 ```bash
-# yarn
-yarn install
-
-# npm
-npm install
-
-# pnpm
-pnpm install
+npm ci
 ```
 
-## Development Server
-
-Start the development server on http://localhost:3000
+Create `.env` for the Get Store Movies tool (set the same variable in the host's environment):
 
 ```bash
-npm run dev
+NUXT_SKYSTORE_API_KEY=...
 ```
 
-## Production
-
-Build the application for production:
+## Commands
 
 ```bash
-npm run build
-```
-
-Locally preview production build:
-
-```bash
+npm run dev       # http://localhost:3000
+npm run build     # Netlify preset
 npm run preview
 ```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.

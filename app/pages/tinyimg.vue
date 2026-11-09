@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import imageCompression from 'browser-image-compression'
+// Same-origin copy of the library for its web worker. Without libURL the worker
+// pulls the script from cdn.jsdelivr.net at runtime.
+import compressionLibPath from 'browser-image-compression/dist/browser-image-compression.js?url'
 import JSZip from 'jszip'
 
 useHead({
@@ -27,6 +30,7 @@ const compressionOptions = ref({
   maxSizeMB: 0.5,
   maxWidthOrHeight: 1920,
   useWebWorker: true,
+  libURL: new URL(compressionLibPath, window.location.origin).href,
   quality: 0.7,
   alwaysKeepResolution: true
 })
