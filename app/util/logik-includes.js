@@ -609,6 +609,22 @@ function getChannelLogo(channel) {
 };
 %>`
 
+export const strContains = `<%
+function strContains(source, targets) {
+  if (source === null || source === undefined) return false;
+  source = String(source);
+  if (Array.isArray(targets) === false) {
+    targets = [targets];
+  }
+  for (var i = 0; i < targets.length; i++) {
+    var t = targets[i];
+    if (t === null || t === undefined || t === "") continue;
+    if (source.indexOf(String(t)) !== -1) return true;
+  }
+  return false;
+}
+%>`
+
 // Registry mapping ACC include view names to content.
 // New include = one entry here. Footer_*START and MirrorPageUrl have
 // special matching in app/util/logik-expand.ts.
@@ -622,4 +638,5 @@ export const includeRegistry = {
   formatPricePoint,
   storeLocator,
   SpotlightHelpers,
+  strContains
 }
